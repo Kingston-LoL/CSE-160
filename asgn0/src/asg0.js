@@ -12,19 +12,36 @@ function main() {
 
   // Get the rendering context for 2DCG
   gl = canvas.getContext('2d');
+  if (!gl) {
+    console.log('Failed to get 2D context');
+    return false;
+  }
+  
+  // Check if Vector3 is available
+  if (typeof Vector3 === 'undefined') {
+    console.error('Vector3 class not found! Check if cuon-matrix-cse160.js is loaded correctly.');
+    return false;
+  }
   
   // Set up event listeners
-  document.getElementById('drawButton').onclick = handleDrawEvent;
-  document.getElementById('drawOperationButton').onclick = handleDrawOperationEvent;
+  var drawButton = document.getElementById('drawButton');
+  var drawOperationButton = document.getElementById('drawOperationButton');
+  if (drawButton) {
+    drawButton.onclick = handleDrawEvent;
+  }
+  if (drawOperationButton) {
+    drawOperationButton.onclick = handleDrawOperationEvent;
+  }
   
   // Initial draw
   handleDrawEvent();
 }
 
 function drawVector(v, color) {
-  // Set the color
+  // Set the color and line width
   gl.strokeStyle = color;
   gl.fillStyle = color;
+  gl.lineWidth = 3;
   
   // Get canvas center
   var centerX = canvas.width / 2;
@@ -65,20 +82,24 @@ function handleDrawEvent() {
   gl.fillRect(0, 0, canvas.width, canvas.height);
   
   // Read v1 values
-  var v1x = parseFloat(document.getElementById('v1x').value);
-  var v1y = parseFloat(document.getElementById('v1y').value);
+  var v1x = parseFloat(document.getElementById('v1x').value) || 0;
+  var v1y = parseFloat(document.getElementById('v1y').value) || 0;
   var v1 = new Vector3([v1x, v1y, 0]);
   
   // Read v2 values
-  var v2x = parseFloat(document.getElementById('v2x').value);
-  var v2y = parseFloat(document.getElementById('v2y').value);
+  var v2x = parseFloat(document.getElementById('v2x').value) || 0;
+  var v2y = parseFloat(document.getElementById('v2y').value) || 0;
   var v2 = new Vector3([v2x, v2y, 0]);
   
-  // Draw v1 in red
-  drawVector(v1, 'red');
+  // Draw v1 in red (only if not zero vector)
+  if (v1x !== 0 || v1y !== 0) {
+    drawVector(v1, 'red');
+  }
   
-  // Draw v2 in blue
-  drawVector(v2, 'blue');
+  // Draw v2 in blue (only if not zero vector)
+  if (v2x !== 0 || v2y !== 0) {
+    drawVector(v2, 'blue');
+  }
 }
 
 function handleDrawOperationEvent() {
