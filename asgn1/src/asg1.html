@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>CSE 160 Assignment 1 - WebGL Drawing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+        #canvas-container {
+            display: inline-block;
+            border: 2px solid #333;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        canvas {
+            display: block;
+        }
+        #controls {
+            display: inline-block;
+            vertical-align: top;
+            margin-left: 20px;
+            padding: 20px;
+            background-color: white;
+            border: 2px solid #333;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .control-group {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        .control-group:last-child {
+            border-bottom: none;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 200px;
+        }
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            border: 2px solid #333;
+            background-color: #fff;
+            border-radius: 3px;
+        }
+        button:hover {
+            background-color: #f0f0f0;
+        }
+        button.active {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+        .slider-value {
+            display: inline-block;
+            margin-left: 10px;
+            font-weight: normal;
+        }
+        #awesome-note {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body onload="main()">
+    <h1>CSE 160 Assignment 1 - WebGL Drawing Application</h1>
+    
+    <div id="canvas-container">
+        <canvas id="gl-canvas" width="600" height="600">
+            Please use a browser that supports "canvas"
+        </canvas>
+    </div>
+    
+    <div id="controls">
+        <div class="control-group">
+            <h3>Brush Type</h3>
+            <button id="btn-point" class="active">Point</button>
+            <button id="btn-triangle">Triangle</button>
+            <button id="btn-circle">Circle</button>
+        </div>
+        
+        <div class="control-group">
+            <h3>Color (RGB)</h3>
+            <label>
+                Red: 
+                <input type="range" id="slider-red" min="0" max="100" value="100">
+                <span class="slider-value" id="red-value">100</span>
+            </label>
+            <label>
+                Green: 
+                <input type="range" id="slider-green" min="0" max="100" value="100">
+                <span class="slider-value" id="green-value">100</span>
+            </label>
+            <label>
+                Blue: 
+                <input type="range" id="slider-blue" min="0" max="100" value="100">
+                <span class="slider-value" id="blue-value">100</span>
+            </label>
+        </div>
+        
+        <div class="control-group">
+            <h3>Shape Size</h3>
+            <label>
+                Size: 
+                <input type="range" id="slider-size" min="1" max="50" value="10">
+                <span class="slider-value" id="size-value">10</span>
+            </label>
+        </div>
+        
+        <div class="control-group">
+            <h3>Circle Segments</h3>
+            <label>
+                Segments: 
+                <input type="range" id="slider-segments" min="3" max="64" value="20">
+                <span class="slider-value" id="segments-value">20</span>
+            </label>
+        </div>
+        
+        <div class="control-group">
+            <h3>Actions</h3>
+            <button id="btn-clear">Clear Canvas</button>
+            <button id="btn-draw-picture">Draw Picture</button>
+        </div>
+        
+        <div id="awesome-note">
+            <h4>Awesome Feature: Transparency Support</h4>
+            <p>This application includes alpha/transparency support! You can create semi-transparent shapes by adjusting the alpha slider below. This allows for blending effects and layered painting.</p>
+            <label>
+                Alpha (Transparency): 
+                <input type="range" id="slider-alpha" min="0" max="100" value="100">
+                <span class="slider-value" id="alpha-value">100</span>
+            </label>
+        </div>
+    </div>
+    
+    <!-- Vertex Shader -->
+    <script id="vertex-shader" type="x-shader/x-vertex">
+        attribute vec4 a_Position;
+        attribute vec4 a_Color;
+        uniform float u_PointSize;
+        varying vec4 v_Color;
+        
+        void main() {
+            gl_Position = a_Position;
+            gl_PointSize = u_PointSize;
+            v_Color = a_Color;
+        }
+    </script>
+    
+    <!-- Fragment Shader -->
+    <script id="fragment-shader" type="x-shader/x-fragment">
+        precision mediump float;
+        varying vec4 v_Color;
+        
+        void main() {
+            gl_FragColor = v_Color;
+        }
+    </script>
+    
+    <script src="Point.js"></script>
+    <script src="Triangle.js"></script>
+    <script src="Circle.js"></script>
+    <script src="asg1.js"></script>
+</body>
+</html>
