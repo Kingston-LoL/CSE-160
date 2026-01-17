@@ -144,33 +144,27 @@ function setupUI() {
     
     redSlider.oninput = function() {
         currentColor[0] = this.value / 100.0;
-        document.getElementById('red-value').textContent = this.value;
     };
     greenSlider.oninput = function() {
         currentColor[1] = this.value / 100.0;
-        document.getElementById('green-value').textContent = this.value;
     };
     blueSlider.oninput = function() {
         currentColor[2] = this.value / 100.0;
-        document.getElementById('blue-value').textContent = this.value;
     };
     alphaSlider.oninput = function() {
         currentColor[3] = this.value / 100.0;
-        document.getElementById('alpha-value').textContent = this.value;
     };
     
     // Size slider
     var sizeSlider = document.getElementById('slider-size');
     sizeSlider.oninput = function() {
         currentSize = parseFloat(this.value);
-        document.getElementById('size-value').textContent = this.value;
     };
     
     // Segments slider
     var segmentsSlider = document.getElementById('slider-segments');
     segmentsSlider.oninput = function() {
         currentSegments = parseInt(this.value);
-        document.getElementById('segments-value').textContent = this.value;
         // Update existing circles if needed
         renderAllShapes();
     };
@@ -179,11 +173,6 @@ function setupUI() {
     document.getElementById('btn-clear').onclick = function() {
         shapesList = [];
         renderAllShapes();
-    };
-    
-    // Draw picture button
-    document.getElementById('btn-draw-picture').onclick = function() {
-        drawPicture();
     };
     
     // Canvas mouse events

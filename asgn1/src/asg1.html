@@ -1,178 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="utf-8" />
     <title>WebGL Drawing Application</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f0f0f0;
-        }
-        #main-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        #canvas-container {
-            margin-bottom: 10px;
-            border: 2px solid #333;
-            background-color: white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        canvas {
-            display: block;
-        }
-        #controls {
-            width: 600px;
-            padding: 20px;
-            background-color: white;
-            border: 2px solid #333;
-            border-radius: 5px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .control-group {
-            margin-bottom: 15px;
-        }
-        .control-group:last-child {
-            margin-bottom: 0;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        .color-controls label {
-            display: inline-block;
-            margin-right: 20px;
-            margin-bottom: 5px;
-        }
-        .color-controls input[type="range"] {
-            width: 150px;
-            vertical-align: middle;
-        }
-        .size-controls {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        .size-controls label {
-            display: inline-block;
-            margin-bottom: 0;
-        }
-        .size-controls input[type="range"] {
-            width: 150px;
-        }
-        input[type="range"] {
-            vertical-align: middle;
-        }
-        button {
-            padding: 10px 15px;
-            margin: 5px;
-            font-size: 14px;
-            cursor: pointer;
-            border: 2px solid #333;
-            background-color: #fff;
-            border-radius: 3px;
-        }
-        button:hover {
-            background-color: #f0f0f0;
-        }
-        button.active {
-            background-color: #4CAF50;
-            color: white;
-            border-color: #4CAF50;
-        }
-        #btn-clear {
-            width: 100%;
-            margin: 0;
-            margin-bottom: 15px;
-        }
-        .slider-value {
-            display: inline-block;
-            margin-left: 10px;
-            font-weight: normal;
-        }
-        #btn-draw-picture {
-            margin-top: 15px;
-            width: 100%;
-        }
-        #awesome-note {
-            margin-top: 15px;
-            padding: 15px;
-            background-color: #e8f5e9;
-            border-left: 4px solid #4CAF50;
-            border-radius: 3px;
-        }
+      button.active {
+        background-color: #4CAF50;
+        color: white;
+      }
     </style>
-</head>
-<body onload="main()">
-    <div id="main-container">
-        <div id="canvas-container">
-            <canvas id="gl-canvas" width="600" height="600">
-                Please use a browser that supports "canvas"
-            </canvas>
-        </div>
-        
-        <div id="controls">
-            <button id="btn-clear">Clean Canvas</button>
-            
-            <div class="control-group">
-                <label>Drawing Mode:</label>
-                <button id="btn-square" class="active">Squares</button>
-                <button id="btn-triangle">Triangles</button>
-                <button id="btn-circle">Circles</button>
-            </div>
-            
-            <div class="control-group">
-                <label>Shape Color:</label>
-                <div class="color-controls">
-                    <label>
-                        Red: 
-                        <input type="range" id="slider-red" min="0" max="100" value="100">
-                        <span class="slider-value" id="red-value">100</span>
-                    </label>
-                    <label>
-                        Green: 
-                        <input type="range" id="slider-green" min="0" max="100" value="100">
-                        <span class="slider-value" id="green-value">100</span>
-                    </label>
-                    <label>
-                        Blue: 
-                        <input type="range" id="slider-blue" min="0" max="100" value="100">
-                        <span class="slider-value" id="blue-value">100</span>
-                    </label>
-                </div>
-            </div>
-            
-            <div class="control-group">
-                <div class="size-controls">
-                    <label>
-                        Shape Size: 
-                        <input type="range" id="slider-size" min="1" max="50" value="10">
-                        <span class="slider-value" id="size-value">10</span>
-                    </label>
-                    <span>(Circles)</span>
-                    <label>
-                        SegmentCount: 
-                        <input type="range" id="slider-segments" min="3" max="64" value="20">
-                        <span class="slider-value" id="segments-value">20</span>
-                    </label>
-                </div>
-            </div>
-            
-            <button id="btn-draw-picture">Draw Picture</button>
-            
-            <div id="awesome-note">
-                <h4>Awesome Feature: Transparency Support</h4>
-                <p>This application includes alpha/transparency support! You can create semi-transparent shapes by adjusting the alpha slider below. This allows for blending effects and layered painting.</p>
-                <label>
-                    Alpha (Transparency): 
-                    <input type="range" id="slider-alpha" min="0" max="100" value="100">
-                    <span class="slider-value" id="alpha-value">100</span>
-                </label>
-            </div>
-        </div>
+  </head>
+
+  <body onload="main()">
+    <canvas id="gl-canvas" width="600" height="600">
+      Please use a browser that supports "canvas"
+    </canvas>
+    <br>
+    
+    <div id="controls">
+      <button id="btn-clear">Clean Canvas</button>
+      
+      <br><br>
+      <h3>Drawing Mode:</h3>
+      <button id="btn-square" class="active">Squares</button>
+      <button id="btn-triangle">Triangles</button>
+      <button id="btn-circle">Circles</button>
+      
+      <br><br>
+      <h3>Shape Color:</h3>
+      <label>Red: 
+        <input type="range" id="slider-red" min="0" max="100" value="100">
+      </label>
+      <label>Green: 
+        <input type="range" id="slider-green" min="0" max="100" value="100">
+      </label>
+      <label>Blue: 
+        <input type="range" id="slider-blue" min="0" max="100" value="100">
+      </label>
+      
+      <br><br>
+      <h3>Shape Size:</h3>
+      <label>Size: 
+        <input type="range" id="slider-size" min="1" max="50" value="10">
+      </label>
+      <span>(Circles)</span>
+      <label>SegmentCount: 
+        <input type="range" id="slider-segments" min="3" max="64" value="20">
+      </label>
+      
+      <br><br>
+      <div id="awesome-note">
+        <h4>Awesome Feature: Transparency Support</h4>
+        <p>This application includes alpha/transparency support! You can create semi-transparent shapes by adjusting the alpha slider below. This allows for blending effects and layered painting.</p>
+        <label>Alpha (Transparency): 
+          <input type="range" id="slider-alpha" min="0" max="100" value="100">
+        </label>
+      </div>
     </div>
     
     <!-- Vertex Shader -->
@@ -203,5 +86,5 @@
     <script src="Triangle.js"></script>
     <script src="Circle.js"></script>
     <script src="asg1.js"></script>
-</body>
+  </body>
 </html>
