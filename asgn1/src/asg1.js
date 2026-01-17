@@ -9,7 +9,7 @@ var shaderProgram;
 
 // Global state
 var shapesList = [];
-var currentBrushType = 'point'; // 'point', 'triangle', 'circle'
+var currentBrushType = 'square'; // 'square', 'triangle', 'circle'
 var currentColor = [1.0, 1.0, 1.0, 1.0]; // [r, g, b, a] normalized
 var currentSize = 10;
 var currentSegments = 20;
@@ -126,8 +126,8 @@ function loadShader(type, sourceId) {
 
 function setupUI() {
     // Brush type buttons
-    document.getElementById('btn-point').onclick = function() {
-        setBrushType('point');
+    document.getElementById('btn-square').onclick = function() {
+        setBrushType('square');
     };
     document.getElementById('btn-triangle').onclick = function() {
         setBrushType('triangle');
@@ -215,7 +215,7 @@ function setBrushType(type) {
     currentBrushType = type;
     
     // Update button styles
-    document.getElementById('btn-point').classList.remove('active');
+    document.getElementById('btn-square').classList.remove('active');
     document.getElementById('btn-triangle').classList.remove('active');
     document.getElementById('btn-circle').classList.remove('active');
     
@@ -231,9 +231,9 @@ function handleClick(ev) {
     y = y - rect.top;
     
     // Create shape based on current brush type
-    if (currentBrushType === 'point') {
-        var point = new Point(x, y, currentColor.slice(), currentSize);
-        shapesList.push(point);
+    if (currentBrushType === 'square') {
+        var square = new Square(x, y, currentSize, currentColor.slice());
+        shapesList.push(square);
     } else if (currentBrushType === 'triangle') {
         // Create a triangle centered at click position
         var size = currentSize;
@@ -249,8 +249,8 @@ function handleClick(ev) {
         shapesList.push(circle);
     }
     
-    // If dragging, also fill gaps between points
-    if (lastX >= 0 && lastY >= 0 && (currentBrushType === 'point' || currentBrushType === 'circle')) {
+    // If dragging, also fill gaps between shapes
+    if (lastX >= 0 && lastY >= 0 && (currentBrushType === 'square' || currentBrushType === 'circle')) {
         var dx = x - lastX;
         var dy = y - lastY;
         var distance = Math.sqrt(dx * dx + dy * dy);
@@ -261,9 +261,9 @@ function handleClick(ev) {
             var interpX = lastX + dx * t;
             var interpY = lastY + dy * t;
             
-            if (currentBrushType === 'point') {
-                var interpPoint = new Point(interpX, interpY, currentColor.slice(), currentSize);
-                shapesList.push(interpPoint);
+            if (currentBrushType === 'square') {
+                var interpSquare = new Square(interpX, interpY, currentSize, currentColor.slice());
+                shapesList.push(interpSquare);
             } else if (currentBrushType === 'circle') {
                 var interpCircle = new Circle(interpX, interpY, currentSize, currentColor.slice(), currentSegments);
                 shapesList.push(interpCircle);
