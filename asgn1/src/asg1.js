@@ -415,5 +415,113 @@ function drawPicture() {
     // Right foot - inverted triangle
     shapesList.push(new Triangle(rightLegX, footY, rightLegX - footSize/2, footY + footSize, rightLegX + footSize/2, footY + footSize, featureColor));
     
+    // Add initials "KC" integrated into the design (for personalization requirement)
+    // Position at top right of the canvas, using rotation for better appearance
+    var initialColor = [0.9, 0.7, 0.1, 1.0]; // Gold color for visibility
+    var initX = width * 0.75; // Top right area
+    var initY = height * 0.15; // Near top
+    var initSize = bodyHeight * 0.2;
+    var cRotation = -5; // Slight rotation for C
+    
+    // Letter K - vertical line is a straight square, diagonals are rotated squares
+    var kX = initX - initSize * 0.6;
+    var kLineWidth = initSize * 0.3;
+    var kLineHeight = initSize * 2;
+    
+    // K vertical line - straight square (rectangle made of 2 triangles)
+    var kTopLeft = kX;
+    var kTopRight = kX + kLineWidth;
+    var kBottomLeft = kX;
+    var kBottomRight = kX + kLineWidth;
+    var kTopY = initY - initSize;
+    var kBottomY = initY + initSize;
+    shapesList.push(new Triangle(kTopLeft, kTopY, kTopRight, kTopY, kBottomLeft, kBottomY, initialColor));
+    shapesList.push(new Triangle(kTopRight, kTopY, kBottomRight, kBottomY, kBottomLeft, kBottomY, initialColor));
+    
+    // K upper diagonal - multiple squares to make it longer
+    var kUpperStartX = kX + kLineWidth;
+    var kUpperStartY = initY;
+    var kUpperEndX = kX + initSize * 1.3; // Extended much further out
+    var kUpperEndY = initY - initSize * 1.0; // Extended much further up
+    var kUpperAngle = Math.atan2(kUpperEndY - kUpperStartY, kUpperEndX - kUpperStartX) * 180 / Math.PI;
+    var kUpperSquareSize = initSize * 0.25; // Size for each square
+    var kUpperNumSquares = 5; // Number of squares to create the diagonal
+    
+    // Create multiple squares along the upper diagonal
+    for (var i = 0; i < kUpperNumSquares; i++) {
+        var t = i / (kUpperNumSquares - 1);
+        var squareX = kUpperStartX + (kUpperEndX - kUpperStartX) * t;
+        var squareY = kUpperStartY + (kUpperEndY - kUpperStartY) * t;
+        var kUpperSquare = new Square(
+            squareX,
+            squareY,
+            kUpperSquareSize,
+            initialColor,
+            kUpperAngle
+        );
+        shapesList.push(kUpperSquare);
+    }
+    
+    // K lower diagonal - multiple squares to make it longer
+    var kLowerStartX = kX + kLineWidth;
+    var kLowerStartY = initY;
+    var kLowerEndX = kX + initSize * 1.3; // Extended much further out
+    var kLowerEndY = initY + initSize * 1.0; // Extended much further down
+    var kLowerAngle = Math.atan2(kLowerEndY - kLowerStartY, kLowerEndX - kLowerStartX) * 180 / Math.PI;
+    var kLowerSquareSize = initSize * 0.25; // Size for each square
+    var kLowerNumSquares = 5; // Number of squares to create the diagonal
+    
+    // Create multiple squares along the lower diagonal
+    for (var i = 0; i < kLowerNumSquares; i++) {
+        var t = i / (kLowerNumSquares - 1);
+        var squareX = kLowerStartX + (kLowerEndX - kLowerStartX) * t;
+        var squareY = kLowerStartY + (kLowerEndY - kLowerStartY) * t;
+        var kLowerSquare = new Square(
+            squareX,
+            squareY,
+            kLowerSquareSize,
+            initialColor,
+            kLowerAngle
+        );
+        shapesList.push(kLowerSquare);
+    }
+    
+    // Letter C - with rotation (restored) - more space from K
+    var cX = initX + initSize * 0.9; // Increased spacing from K
+    var cSize = initSize;
+    var cCenterX = cX;
+    var cCenterY = initY;
+    
+    // Helper function to rotate point around center
+    function rotatePoint(x, y, cx, cy, angleDeg) {
+        var angleRad = angleDeg * Math.PI / 180;
+        var cos = Math.cos(angleRad);
+        var sin = Math.sin(angleRad);
+        var dx = x - cx;
+        var dy = y - cy;
+        return [cx + dx * cos - dy * sin, cy + dx * sin + dy * cos];
+    }
+    
+    // C top curve - rotated
+    var cTopLeft = rotatePoint(cX - cSize * 0.3, initY - cSize, cCenterX, cCenterY, cRotation);
+    var cTopRight = rotatePoint(cX, initY - cSize, cCenterX, cCenterY, cRotation);
+    var cTopCurve = rotatePoint(cX + cSize * 0.2, initY - cSize * 0.7, cCenterX, cCenterY, cRotation);
+    var cTopMid = rotatePoint(cX - cSize * 0.1, initY - cSize * 0.7, cCenterX, cCenterY, cRotation);
+    shapesList.push(new Triangle(cTopLeft[0], cTopLeft[1], cTopRight[0], cTopRight[1], cTopCurve[0], cTopCurve[1], initialColor));
+    shapesList.push(new Triangle(cTopLeft[0], cTopLeft[1], cTopCurve[0], cTopCurve[1], cTopMid[0], cTopMid[1], initialColor));
+    
+    // C left vertical - rotated
+    var cLeftTop = rotatePoint(cX - cSize * 0.1, initY - cSize * 0.7, cCenterX, cCenterY, cRotation);
+    var cLeftBottom = rotatePoint(cX - cSize * 0.1, initY + cSize * 0.7, cCenterX, cCenterY, cRotation);
+    var cBottomLeft = rotatePoint(cX - cSize * 0.3, initY + cSize, cCenterX, cCenterY, cRotation);
+    shapesList.push(new Triangle(cTopLeft[0], cTopLeft[1], cLeftTop[0], cLeftTop[1], cLeftBottom[0], cLeftBottom[1], initialColor));
+    shapesList.push(new Triangle(cTopLeft[0], cTopLeft[1], cLeftBottom[0], cLeftBottom[1], cBottomLeft[0], cBottomLeft[1], initialColor));
+    
+    // C bottom curve - rotated
+    var cBottomRight = rotatePoint(cX, initY + cSize, cCenterX, cCenterY, cRotation);
+    var cBottomCurve = rotatePoint(cX + cSize * 0.2, initY + cSize * 0.7, cCenterX, cCenterY, cRotation);
+    shapesList.push(new Triangle(cBottomLeft[0], cBottomLeft[1], cLeftBottom[0], cLeftBottom[1], cBottomCurve[0], cBottomCurve[1], initialColor));
+    shapesList.push(new Triangle(cBottomLeft[0], cBottomLeft[1], cBottomCurve[0], cBottomCurve[1], cBottomRight[0], cBottomRight[1], initialColor));
+    
     renderAllShapes();
 }
