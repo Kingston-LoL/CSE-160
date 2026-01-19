@@ -282,79 +282,158 @@ function renderAllShapes() {
 }
 
 function drawPicture() {
-    // Draw a picture using triangles - featuring initials "JC" (Jason Cheung)
-    // This creates a stylized design with the initials integrated into a scene
+    // Draw a picture using triangles based on hand-drawn reference
+    // Recreating the bat-like creature: body (squares), ears (triangles), wings (big triangles), legs (squares connecting to triangles), halo (arc)
     
     var width = canvas.width;
     var height = canvas.height;
     var centerX = width / 2;
     var centerY = height / 2;
     
-    // Background triangles - sky gradient
-    var skyColor1 = [0.2, 0.4, 0.8, 1.0];
-    var skyColor2 = [0.5, 0.7, 1.0, 1.0];
+    // Background - simple dark background
+    var bgColor = [0.1, 0.1, 0.15, 1.0];
+    shapesList.push(new Triangle(0, 0, width, 0, width, height, bgColor));
+    shapesList.push(new Triangle(0, 0, width, height, 0, height, bgColor));
     
-    // Sky triangles
-    shapesList.push(new Triangle(0, 0, width, 0, width, height * 0.6, skyColor1));
-    shapesList.push(new Triangle(0, 0, width, height * 0.6, 0, height * 0.6, skyColor1));
-    shapesList.push(new Triangle(0, height * 0.6, width, height * 0.6, width, height * 0.4, skyColor2));
-    shapesList.push(new Triangle(0, height * 0.6, width, height * 0.4, 0, height * 0.4, skyColor2));
+    // Creature colors
+    var bodyColor = [0.3, 0.3, 0.3, 1.0]; // Dark gray for body
+    var featureColor = [0.1, 0.1, 0.1, 1.0]; // Black for features
+    var haloColor = [0.8, 0.8, 0.9, 1.0]; // Light for halo
     
-    // Ground
-    var groundColor = [0.2, 0.6, 0.2, 1.0];
-    shapesList.push(new Triangle(0, height * 0.6, width, height * 0.6, width, height, groundColor));
-    shapesList.push(new Triangle(0, height * 0.6, width, height, 0, height, groundColor));
+    // Scale factor for the creature
+    var scale = 2.0;
+    var bodyWidth = 100 * scale;
+    var bodyHeight = 140 * scale;
     
-    // Letter J - made of triangles
-    var jColor = [1.0, 0.8, 0.0, 1.0]; // Gold color
-    var jX = centerX - 80;
-    var jY = centerY;
-    var jSize = 60;
+    // Main body/head - SQUARE (rectangle made of 2 triangles)
+    var bodyLeft = centerX - bodyWidth / 2;
+    var bodyRight = centerX + bodyWidth / 2;
+    var bodyTop = centerY - bodyHeight / 2;
+    var bodyBottom = centerY + bodyHeight / 2;
     
-    // J vertical line
-    shapesList.push(new Triangle(jX, jY - jSize, jX + 15, jY - jSize, jX + 15, jY + jSize * 0.3, jColor));
-    shapesList.push(new Triangle(jX, jY - jSize, jX + 15, jY + jSize * 0.3, jX, jY + jSize * 0.3, jColor));
+    // Body square - triangle 1
+    shapesList.push(new Triangle(bodyLeft, bodyTop, bodyRight, bodyTop, bodyLeft, bodyBottom, bodyColor));
+    // Body square - triangle 2
+    shapesList.push(new Triangle(bodyRight, bodyTop, bodyRight, bodyBottom, bodyLeft, bodyBottom, bodyColor));
     
-    // J curve/hook
-    shapesList.push(new Triangle(jX, jY + jSize * 0.3, jX + 15, jY + jSize * 0.3, jX + 25, jY + jSize * 0.5, jColor));
-    shapesList.push(new Triangle(jX, jY + jSize * 0.3, jX + 25, jY + jSize * 0.5, jX + 10, jY + jSize * 0.5, jColor));
-    shapesList.push(new Triangle(jX + 10, jY + jSize * 0.5, jX + 25, jY + jSize * 0.5, jX + 20, jY + jSize * 0.7, jColor));
-    shapesList.push(new Triangle(jX + 10, jY + jSize * 0.5, jX + 20, jY + jSize * 0.7, jX + 5, jY + jSize * 0.7, jColor));
+    // Ears - TWO TRIANGLES (one for each ear) - BIGGER
+    var earSize = 80 * scale; // Increased from 50
+    var earTopY = bodyTop - 25 * scale; // Moved higher
     
-    // Letter C - made of triangles
-    var cColor = [0.8, 0.2, 0.8, 1.0]; // Purple color
-    var cX = centerX + 80;
-    var cY = centerY;
-    var cSize = 60;
+    // Left ear - single triangle (bigger)
+    var leftEarX = bodyLeft - 20 * scale; // Extended further out
+    shapesList.push(new Triangle(bodyLeft, bodyTop, leftEarX, earTopY, bodyLeft + 25 * scale, bodyTop + 35 * scale, bodyColor));
     
-    // C top curve
-    shapesList.push(new Triangle(cX - cSize * 0.3, cY - cSize, cX, cY - cSize, cX + cSize * 0.2, cY - cSize * 0.7, cColor));
-    shapesList.push(new Triangle(cX - cSize * 0.3, cY - cSize, cX + cSize * 0.2, cY - cSize * 0.7, cX - cSize * 0.1, cY - cSize * 0.7, cColor));
+    // Right ear - single triangle (bigger)
+    var rightEarX = bodyRight + 20 * scale; // Extended further out
+    shapesList.push(new Triangle(bodyRight, bodyTop, rightEarX, earTopY, bodyRight - 25 * scale, bodyTop + 35 * scale, bodyColor));
     
-    // C left vertical
-    shapesList.push(new Triangle(cX - cSize * 0.3, cY - cSize, cX - cSize * 0.1, cY - cSize * 0.7, cX - cSize * 0.1, cY + cSize * 0.7, cColor));
-    shapesList.push(new Triangle(cX - cSize * 0.3, cY - cSize, cX - cSize * 0.1, cY + cSize * 0.7, cX - cSize * 0.3, cY + cSize, cColor));
+    // Eyes - 2 upward-pointing triangles
+    var eyeSize = 18 * scale;
+    var eyeY = centerY - 35 * scale;
+    var leftEyeX = centerX - 25 * scale;
+    var rightEyeX = centerX + 25 * scale;
     
-    // C bottom curve
-    shapesList.push(new Triangle(cX - cSize * 0.3, cY + cSize, cX - cSize * 0.1, cY + cSize * 0.7, cX + cSize * 0.2, cY + cSize * 0.7, cColor));
-    shapesList.push(new Triangle(cX - cSize * 0.3, cY + cSize, cX + cSize * 0.2, cY + cSize * 0.7, cX, cY + cSize, cColor));
+    // Left eye (upward triangle)
+    shapesList.push(new Triangle(leftEyeX, eyeY, leftEyeX - eyeSize/2, eyeY - eyeSize, leftEyeX + eyeSize/2, eyeY - eyeSize, featureColor));
+    // Right eye (upward triangle)
+    shapesList.push(new Triangle(rightEyeX, eyeY, rightEyeX - eyeSize/2, eyeY - eyeSize, rightEyeX + eyeSize/2, eyeY - eyeSize, featureColor));
     
-    // Decorative elements - sun
-    var sunColor = [1.0, 1.0, 0.3, 1.0];
-    var sunX = width * 0.8;
-    var sunY = height * 0.2;
-    var sunSize = 40;
+    // Nose - 1 inverted triangle
+    var noseSize = 12 * scale;
+    var noseX = centerX;
+    var noseY = centerY - 10 * scale;
+    shapesList.push(new Triangle(noseX, noseY, noseX - noseSize/2, noseY + noseSize, noseX + noseSize/2, noseY + noseSize, featureColor));
     
-    // Sun center
-    shapesList.push(new Triangle(sunX, sunY, sunX + sunSize * 0.5, sunY - sunSize * 0.3, sunX + sunSize * 0.3, sunY + sunSize * 0.3, sunColor));
-    shapesList.push(new Triangle(sunX, sunY, sunX + sunSize * 0.3, sunY + sunSize * 0.3, sunX - sunSize * 0.3, sunY + sunSize * 0.3, sunColor));
-    shapesList.push(new Triangle(sunX, sunY, sunX - sunSize * 0.3, sunY + sunSize * 0.3, sunX - sunSize * 0.5, sunY - sunSize * 0.3, sunColor));
-    shapesList.push(new Triangle(sunX, sunY, sunX - sunSize * 0.5, sunY - sunSize * 0.3, sunX + sunSize * 0.5, sunY - sunSize * 0.3, sunColor));
+    // Mouth - horizontal line (2 triangles for a small rectangle)
+    var mouthWidth = 25 * scale;
+    var mouthHeight = 4 * scale;
+    var mouthY = centerY + 15 * scale;
+    var mouthLeft = centerX - mouthWidth / 2;
+    var mouthRight = centerX + mouthWidth / 2;
+    shapesList.push(new Triangle(mouthLeft, mouthY, mouthRight, mouthY, mouthLeft, mouthY + mouthHeight, featureColor));
+    shapesList.push(new Triangle(mouthRight, mouthY, mouthRight, mouthY + mouthHeight, mouthLeft, mouthY + mouthHeight, featureColor));
     
-    // Mountains in background
-    var mountainColor = [0.4, 0.3, 0.2, 1.0];
-    shapesList.push(new Triangle(width * 0.1, height * 0.6, width * 0.3, height * 0.4, width * 0.5, height * 0.6, mountainColor));
-    shapesList.push(new Triangle(width * 0.5, height * 0.6, width * 0.7, height * 0.5, width * 0.9, height * 0.6, mountainColor));
+    // Wings - TWO SMALL TRIANGLES that combine to form a big triangle (positioned like feet triangles, BIGGER)
+    var wingSize = 120 * scale; // Increased from 80
+    var wingY = centerY;
+    
+    // Left wing - two triangles that combine to form a big triangle (pointing downward like feet, extended outward)
+    var leftWingX = centerX - 50 * scale; // Moved further out from center
+    var leftWingTopY = wingY - 30 * scale; // Extended higher
+    var leftWingBottomY = wingY + 80 * scale; // Extended lower
+    // Left wing triangle 1 (left part - extends further out)
+    shapesList.push(new Triangle(leftWingX, leftWingTopY, leftWingX - wingSize/2, leftWingBottomY, leftWingX, leftWingBottomY, bodyColor));
+    // Left wing triangle 2 (right part - extends further out)
+    shapesList.push(new Triangle(leftWingX, leftWingTopY, leftWingX + wingSize/2, leftWingBottomY, leftWingX, leftWingBottomY, bodyColor));
+    
+    // Right wing - two triangles that combine to form a big triangle (pointing downward like feet, extended outward)
+    var rightWingX = centerX + 50 * scale; // Moved further out from center
+    var rightWingTopY = wingY - 30 * scale; // Extended higher
+    var rightWingBottomY = wingY + 80 * scale; // Extended lower
+    // Right wing triangle 1 (left part - extends further out)
+    shapesList.push(new Triangle(rightWingX, rightWingTopY, rightWingX - wingSize/2, rightWingBottomY, rightWingX, rightWingBottomY, bodyColor));
+    // Right wing triangle 2 (right part - extends further out)
+    shapesList.push(new Triangle(rightWingX, rightWingTopY, rightWingX + wingSize/2, rightWingBottomY, rightWingX, rightWingBottomY, bodyColor));
+    
+    // Legs - TWO SQUARES (rectangles) connecting to triangles (feet)
+    var legWidth = 20 * scale;
+    var legHeight = 30 * scale;
+    var legTopY = bodyBottom;
+    var leftLegX = centerX - 30 * scale;
+    var rightLegX = centerX + 30 * scale;
+    
+    // Left leg - square (2 triangles)
+    var leftLegLeft = leftLegX - legWidth / 2;
+    var leftLegRight = leftLegX + legWidth / 2;
+    var leftLegBottom = legTopY + legHeight;
+    shapesList.push(new Triangle(leftLegLeft, legTopY, leftLegRight, legTopY, leftLegLeft, leftLegBottom, bodyColor));
+    shapesList.push(new Triangle(leftLegRight, legTopY, leftLegRight, leftLegBottom, leftLegLeft, leftLegBottom, bodyColor));
+    
+    // Right leg - square (2 triangles)
+    var rightLegLeft = rightLegX - legWidth / 2;
+    var rightLegRight = rightLegX + legWidth / 2;
+    var rightLegBottom = legTopY + legHeight;
+    shapesList.push(new Triangle(rightLegLeft, legTopY, rightLegRight, legTopY, rightLegLeft, rightLegBottom, bodyColor));
+    shapesList.push(new Triangle(rightLegRight, legTopY, rightLegRight, rightLegBottom, rightLegLeft, rightLegBottom, bodyColor));
+    
+    // Feet - triangles connected to the leg squares
+    var footSize = 20 * scale;
+    var footY = leftLegBottom + 5 * scale;
+    
+    // Left foot - inverted triangle
+    shapesList.push(new Triangle(leftLegX, footY, leftLegX - footSize/2, footY + footSize, leftLegX + footSize/2, footY + footSize, featureColor));
+    // Right foot - inverted triangle
+    shapesList.push(new Triangle(rightLegX, footY, rightLegX - footSize/2, footY + footSize, rightLegX + footSize/2, footY + footSize, featureColor));
+    
+    // Halo/Aura - arc of circles at the top of head (like an angle/arch)
+    // Creating an arc above the head using multiple small triangles
+    var haloRadius = 80 * scale;
+    var haloCenterX = centerX;
+    var haloCenterY = bodyTop - 70 * scale; // Moved higher above the head
+    var haloStartAngle = Math.PI * 0.25; // Start angle
+    var haloEndAngle = Math.PI * 0.75; // End angle
+    var haloSegments = 16; // Number of segments in the arc
+    
+    for (var i = 0; i < haloSegments; i++) {
+        var angle1 = haloStartAngle + (haloEndAngle - haloStartAngle) * (i / haloSegments);
+        var angle2 = haloStartAngle + (haloEndAngle - haloStartAngle) * ((i + 1) / haloSegments);
+        var radius1 = haloRadius;
+        var radius2 = haloRadius + 10 * scale;
+        
+        var x1 = haloCenterX + Math.cos(angle1) * radius1;
+        var y1 = haloCenterY + Math.sin(angle1) * radius1;
+        var x2 = haloCenterX + Math.cos(angle2) * radius1;
+        var y2 = haloCenterY + Math.sin(angle2) * radius1;
+        var x3 = haloCenterX + Math.cos(angle1) * radius2;
+        var y3 = haloCenterY + Math.sin(angle1) * radius2;
+        var x4 = haloCenterX + Math.cos(angle2) * radius2;
+        var y4 = haloCenterY + Math.sin(angle2) * radius2;
+        
+        // Each segment is 2 triangles
+        shapesList.push(new Triangle(x1, y1, x2, y2, x3, y3, haloColor));
+        shapesList.push(new Triangle(x2, y2, x4, y4, x3, y3, haloColor));
+    }
     
     renderAllShapes();
 }
