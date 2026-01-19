@@ -175,6 +175,11 @@ function setupUI() {
         renderAllShapes();
     };
     
+    // Draw picture button
+    document.getElementById('btn-draw-picture').onclick = function() {
+        drawPicture();
+    };
+    
     // Canvas mouse events
     canvas.onmousedown = function(ev) {
         handleClick(ev);
