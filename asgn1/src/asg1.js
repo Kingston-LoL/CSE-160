@@ -10,7 +10,7 @@ var shaderProgram;
 // Global state
 var shapesList = [];
 var currentBrushType = 'square'; // 'square', 'triangle', 'circle'
-var currentColor = [1.0, 1.0, 1.0, 1.0]; // [r, g, b, a] normalized
+var currentColor = [1.0, 1.0, 0.0, 1.0]; // [r, g, b, a] normalized (blue set to 0)
 var currentSize = 10;
 var currentSegments = 20;
 var isDrawing = false;
@@ -139,7 +139,6 @@ function setupUI() {
     // Color sliders
     var redSlider = document.getElementById('slider-red');
     var greenSlider = document.getElementById('slider-green');
-    var blueSlider = document.getElementById('slider-blue');
     var alphaSlider = document.getElementById('slider-alpha');
     
     redSlider.oninput = function() {
@@ -147,9 +146,6 @@ function setupUI() {
     };
     greenSlider.oninput = function() {
         currentColor[1] = this.value / 100.0;
-    };
-    blueSlider.oninput = function() {
-        currentColor[2] = this.value / 100.0;
     };
     alphaSlider.oninput = function() {
         currentColor[3] = this.value / 100.0;
