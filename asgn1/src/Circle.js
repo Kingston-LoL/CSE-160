@@ -1,11 +1,12 @@
 // Circle class for drawing circles using triangles
 class Circle {
-    constructor(x, y, radius, color, segments) {
+    constructor(x, y, radius, color, segments, rotation) {
         this.x = x;
         this.y = y;
         this.radius = radius;
         this.color = color; // [r, g, b, a] normalized to 0-1
         this.segments = segments || 20;
+        this.rotation = rotation || 0; // Rotation in degrees
     }
     
     // Convert canvas coordinates to WebGL coordinates
@@ -28,9 +29,10 @@ class Circle {
         var radiusGlY = (this.radius / gl.canvas.height) * 2;
         
         // Create triangles fan from center
+        var rotationRad = this.rotation * Math.PI / 180; // Convert rotation to radians
         for (var i = 0; i < this.segments; i++) {
-            var angle1 = (i / this.segments) * 2 * Math.PI;
-            var angle2 = ((i + 1) / this.segments) * 2 * Math.PI;
+            var angle1 = (i / this.segments) * 2 * Math.PI + rotationRad;
+            var angle2 = ((i + 1) / this.segments) * 2 * Math.PI + rotationRad;
             
             // Center vertex
             vertices.push(centerGl[0], centerGl[1]);

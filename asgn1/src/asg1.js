@@ -13,6 +13,7 @@ var currentBrushType = 'square'; // 'square', 'triangle', 'circle'
 var currentColor = [1.0, 1.0, 1.0, 1.0]; // [r, g, b, a] normalized
 var currentSize = 10;
 var currentSegments = 20;
+var currentRotation = 0; // Rotation angle in degrees
 var isDrawing = false;
 var lastX = -1;
 var lastY = -1;
@@ -140,7 +141,6 @@ function setupUI() {
     var redSlider = document.getElementById('slider-red');
     var greenSlider = document.getElementById('slider-green');
     var blueSlider = document.getElementById('slider-blue');
-    var alphaSlider = document.getElementById('slider-alpha');
     
     redSlider.oninput = function() {
         currentColor[0] = this.value / 100.0;
@@ -151,8 +151,11 @@ function setupUI() {
     blueSlider.oninput = function() {
         currentColor[2] = this.value / 100.0;
     };
-    alphaSlider.oninput = function() {
-        currentColor[3] = this.value / 100.0;
+    
+    // Rotation slider
+    var rotationSlider = document.getElementById('slider-rotation');
+    rotationSlider.oninput = function() {
+        currentRotation = parseFloat(this.value);
     };
     
     // Size slider
@@ -226,7 +229,7 @@ function handleClick(ev) {
     
     // Create shape based on current brush type
     if (currentBrushType === 'square') {
-        var square = new Square(x, y, currentSize, currentColor.slice());
+        var square = new Square(x, y, currentSize, currentColor.slice(), currentRotation);
         shapesList.push(square);
     } else if (currentBrushType === 'triangle') {
         // Create a triangle centered at click position
@@ -235,11 +238,12 @@ function handleClick(ev) {
             x, y - size,
             x - size * 0.866, y + size * 0.5,
             x + size * 0.866, y + size * 0.5,
-            currentColor.slice()
+            currentColor.slice(),
+            currentRotation
         );
         shapesList.push(triangle);
     } else if (currentBrushType === 'circle') {
-        var circle = new Circle(x, y, currentSize, currentColor.slice(), currentSegments);
+        var circle = new Circle(x, y, currentSize, currentColor.slice(), currentSegments, currentRotation);
         shapesList.push(circle);
     }
     
@@ -256,10 +260,10 @@ function handleClick(ev) {
             var interpY = lastY + dy * t;
             
             if (currentBrushType === 'square') {
-                var interpSquare = new Square(interpX, interpY, currentSize, currentColor.slice());
+                var interpSquare = new Square(interpX, interpY, currentSize, currentColor.slice(), currentRotation);
                 shapesList.push(interpSquare);
             } else if (currentBrushType === 'circle') {
-                var interpCircle = new Circle(interpX, interpY, currentSize, currentColor.slice(), currentSegments);
+                var interpCircle = new Circle(interpX, interpY, currentSize, currentColor.slice(), currentSegments, currentRotation);
                 shapesList.push(interpCircle);
             }
         }
@@ -316,73 +320,77 @@ function drawPicture() {
     // Body square - triangle 2
     shapesList.push(new Triangle(bodyRight, bodyTop, bodyRight, bodyBottom, bodyLeft, bodyBottom, bodyColor));
     
-    // Ears - TWO TRIANGLES (one for each ear) - proportional to body
-    var earSize = bodyHeight * 0.4; // Proportional to body height
-    var earTopY = bodyTop - bodyHeight * 0.15; // Proportional to body
-    
-    // Left ear - single triangle
-    var leftEarX = bodyLeft - bodyWidth * 0.15; // Proportional to body width
-    shapesList.push(new Triangle(bodyLeft, bodyTop, leftEarX, earTopY, bodyLeft + bodyWidth * 0.15, bodyTop + bodyHeight * 0.2, bodyColor));
-    
-    // Right ear - single triangle
-    var rightEarX = bodyRight + bodyWidth * 0.15; // Proportional to body width
-    shapesList.push(new Triangle(bodyRight, bodyTop, rightEarX, earTopY, bodyRight - bodyWidth * 0.15, bodyTop + bodyHeight * 0.2, bodyColor));
-    
-    // Eyes - 2 upward-pointing triangles (proportional to body)
-    var eyeSize = bodyHeight * 0.1; // Proportional to body height
-    var eyeY = centerY - bodyHeight * 0.2; // Proportional to body
-    var leftEyeX = centerX - bodyWidth * 0.2; // Proportional to body width
-    var rightEyeX = centerX + bodyWidth * 0.2; // Proportional to body width
+    // Eyes - 2 small triangles inside top half of body, horizontally positioned
+    var eyeSize = bodyHeight * 0.08; // Small triangles
+    var eyeY = centerY - bodyHeight * 0.15; // In top half of body
+    var leftEyeX = centerX - bodyWidth * 0.25; // Horizontally positioned
+    var rightEyeX = centerX + bodyWidth * 0.25; // Horizontally positioned
     
     // Left eye (upward triangle)
     shapesList.push(new Triangle(leftEyeX, eyeY, leftEyeX - eyeSize/2, eyeY - eyeSize, leftEyeX + eyeSize/2, eyeY - eyeSize, featureColor));
     // Right eye (upward triangle)
     shapesList.push(new Triangle(rightEyeX, eyeY, rightEyeX - eyeSize/2, eyeY - eyeSize, rightEyeX + eyeSize/2, eyeY - eyeSize, featureColor));
     
-    // Nose - 1 inverted triangle (proportional to body)
-    var noseSize = bodyHeight * 0.06; // Proportional to body height
+    // Nose/Mouth - 1 inverted triangle (outline style) below eyes, centered
+    var noseSize = bodyHeight * 0.08;
     var noseX = centerX;
-    var noseY = centerY - bodyHeight * 0.05; // Proportional to body
+    var noseY = centerY - bodyHeight * 0.05; // Below eyes
     shapesList.push(new Triangle(noseX, noseY, noseX - noseSize/2, noseY + noseSize, noseX + noseSize/2, noseY + noseSize, featureColor));
     
-    // Mouth - horizontal line (2 triangles for a small rectangle) (proportional to body)
-    var mouthWidth = bodyWidth * 0.2; // Proportional to body width
-    var mouthHeight = bodyHeight * 0.02; // Proportional to body height
-    var mouthY = centerY + bodyHeight * 0.08; // Proportional to body
-    var mouthLeft = centerX - mouthWidth / 2;
-    var mouthRight = centerX + mouthWidth / 2;
-    shapesList.push(new Triangle(mouthLeft, mouthY, mouthRight, mouthY, mouthLeft, mouthY + mouthHeight, featureColor));
-    shapesList.push(new Triangle(mouthRight, mouthY, mouthRight, mouthY + mouthHeight, mouthLeft, mouthY + mouthHeight, featureColor));
+    // Wings - Each wing is TWO 90-degree (right-angled) triangles that combine to form a big triangle
+    var wingSize = bodyHeight * 0.8; // Wings are large but proportional
+    var wingHeight = bodyHeight * 0.6; // Height of the wing triangle
     
-    // Wings - TWO SMALL TRIANGLES that combine to form a big triangle (positioned like feet triangles)
-    // Wings should match body height (biggest shape size)
-    var wingSize = bodyHeight; // Match the biggest shape size (body height)
-    var wingY = centerY;
+    // LEFT WING - Two right-angled triangles forming one big triangle
+    // Big triangle vertices: (bodyLeft, bodyTop), (bodyLeft, bodyTop + wingHeight), (leftWingTipX, bodyTop + wingHeight)
+    var leftWingTipX = bodyLeft - wingSize; // Tip extending outward
     
-    // Left wing - two triangles that combine to form a big triangle (pointing downward like feet)
-    var leftWingX = centerX - 30 * scale; // Proportional to body
-    var leftWingTopY = wingY - 20 * scale; // Proportional to body
-    var leftWingBottomY = wingY + bodyHeight * 0.4; // Proportional to body height
-    // Left wing triangle 1 (left part - extends further out)
-    shapesList.push(new Triangle(leftWingX, leftWingTopY, leftWingX - wingSize/2, leftWingBottomY, leftWingX, leftWingBottomY, bodyColor));
-    // Left wing triangle 2 (right part - extends further out)
-    shapesList.push(new Triangle(leftWingX, leftWingTopY, leftWingX + wingSize/2, leftWingBottomY, leftWingX, leftWingBottomY, bodyColor));
+    // Left wing triangle 1 (upper right-angled triangle)
+    // Right angle at: (bodyLeft, bodyTop) - forms 90 degrees
+    shapesList.push(new Triangle(
+        bodyLeft, bodyTop, // Top attachment point (right angle vertex)
+        leftWingTipX, bodyTop, // Horizontal edge from body
+        bodyLeft, bodyTop + wingHeight * 0.5, // Vertical edge down body
+        bodyColor
+    ));
     
-    // Right wing - two triangles that combine to form a big triangle (pointing downward like feet)
-    var rightWingX = centerX + 30 * scale; // Proportional to body
-    var rightWingTopY = wingY - 20 * scale; // Proportional to body
-    var rightWingBottomY = wingY + bodyHeight * 0.4; // Proportional to body height
-    // Right wing triangle 1 (left part - extends further out)
-    shapesList.push(new Triangle(rightWingX, rightWingTopY, rightWingX - wingSize/2, rightWingBottomY, rightWingX, rightWingBottomY, bodyColor));
-    // Right wing triangle 2 (right part - extends further out)
-    shapesList.push(new Triangle(rightWingX, rightWingTopY, rightWingX + wingSize/2, rightWingBottomY, rightWingX, rightWingBottomY, bodyColor));
+    // Left wing triangle 2 (lower right-angled triangle)
+    // Right angle at: (leftWingTipX, bodyTop + wingHeight) - forms 90 degrees
+    shapesList.push(new Triangle(
+        bodyLeft, bodyTop + wingHeight * 0.5, // Upper point (shared with triangle 1)
+        leftWingTipX, bodyTop, // Shared horizontal edge
+        leftWingTipX, bodyTop + wingHeight, // Bottom tip (right angle vertex)
+        bodyColor
+    ));
     
-    // Legs - TWO SQUARES (rectangles) connecting to triangles (feet) (proportional to body)
-    var legWidth = bodyWidth * 0.15; // Proportional to body width
-    var legHeight = bodyHeight * 0.15; // Proportional to body height
+    // RIGHT WING - Two right-angled triangles forming one big triangle
+    // Big triangle vertices: (bodyRight, bodyTop), (bodyRight, bodyTop + wingHeight), (rightWingTipX, bodyTop + wingHeight)
+    var rightWingTipX = bodyRight + wingSize; // Tip extending outward
+    
+    // Right wing triangle 1 (upper right-angled triangle)
+    // Right angle at: (bodyRight, bodyTop) - forms 90 degrees
+    shapesList.push(new Triangle(
+        bodyRight, bodyTop, // Top attachment point (right angle vertex)
+        rightWingTipX, bodyTop, // Horizontal edge from body
+        bodyRight, bodyTop + wingHeight * 0.5, // Vertical edge down body
+        bodyColor
+    ));
+    
+    // Right wing triangle 2 (lower right-angled triangle)
+    // Right angle at: (rightWingTipX, bodyTop + wingHeight) - forms 90 degrees
+    shapesList.push(new Triangle(
+        bodyRight, bodyTop + wingHeight * 0.5, // Upper point (shared with triangle 1)
+        rightWingTipX, bodyTop, // Shared horizontal edge
+        rightWingTipX, bodyTop + wingHeight, // Bottom tip (right angle vertex)
+        bodyColor
+    ));
+    
+    // Legs - TWO short vertical lines (squares/rectangles) extending down from body
+    var legWidth = bodyWidth * 0.12; // Thin vertical lines
+    var legHeight = bodyHeight * 0.2; // Short legs
     var legTopY = bodyBottom;
-    var leftLegX = centerX - bodyWidth * 0.25; // Proportional to body width
-    var rightLegX = centerX + bodyWidth * 0.25; // Proportional to body width
+    var leftLegX = centerX - bodyWidth * 0.3;
+    var rightLegX = centerX + bodyWidth * 0.3;
     
     // Left leg - square (2 triangles)
     var leftLegLeft = leftLegX - legWidth / 2;
@@ -398,43 +406,14 @@ function drawPicture() {
     shapesList.push(new Triangle(rightLegLeft, legTopY, rightLegRight, legTopY, rightLegLeft, rightLegBottom, bodyColor));
     shapesList.push(new Triangle(rightLegRight, legTopY, rightLegRight, rightLegBottom, rightLegLeft, rightLegBottom, bodyColor));
     
-    // Feet - triangles connected to the leg squares (proportional to body)
-    var footSize = bodyHeight * 0.1; // Proportional to body height
-    var footY = leftLegBottom + bodyHeight * 0.02; // Proportional to body
+    // Feet - small inverted triangles at the end of each leg
+    var footSize = bodyHeight * 0.08;
+    var footY = leftLegBottom + bodyHeight * 0.02;
     
     // Left foot - inverted triangle
     shapesList.push(new Triangle(leftLegX, footY, leftLegX - footSize/2, footY + footSize, leftLegX + footSize/2, footY + footSize, featureColor));
     // Right foot - inverted triangle
     shapesList.push(new Triangle(rightLegX, footY, rightLegX - footSize/2, footY + footSize, rightLegX + footSize/2, footY + footSize, featureColor));
-    
-    // Halo/Aura - arc of circles at the top of head (like an angle/arch)
-    // Creating an arc above the head using multiple small triangles
-    var haloRadius = bodyHeight * 0.5; // Proportional to body height
-    var haloCenterX = centerX;
-    var haloCenterY = bodyTop - bodyHeight * 0.3; // Proportional to body height
-    var haloStartAngle = Math.PI * 0.25; // Start angle
-    var haloEndAngle = Math.PI * 0.75; // End angle
-    var haloSegments = 16; // Number of segments in the arc
-    
-    for (var i = 0; i < haloSegments; i++) {
-        var angle1 = haloStartAngle + (haloEndAngle - haloStartAngle) * (i / haloSegments);
-        var angle2 = haloStartAngle + (haloEndAngle - haloStartAngle) * ((i + 1) / haloSegments);
-        var radius1 = haloRadius;
-        var radius2 = haloRadius + 10 * scale;
-        
-        var x1 = haloCenterX + Math.cos(angle1) * radius1;
-        var y1 = haloCenterY + Math.sin(angle1) * radius1;
-        var x2 = haloCenterX + Math.cos(angle2) * radius1;
-        var y2 = haloCenterY + Math.sin(angle2) * radius1;
-        var x3 = haloCenterX + Math.cos(angle1) * radius2;
-        var y3 = haloCenterY + Math.sin(angle1) * radius2;
-        var x4 = haloCenterX + Math.cos(angle2) * radius2;
-        var y4 = haloCenterY + Math.sin(angle2) * radius2;
-        
-        // Each segment is 2 triangles
-        shapesList.push(new Triangle(x1, y1, x2, y2, x3, y3, haloColor));
-        shapesList.push(new Triangle(x2, y2, x4, y4, x3, y3, haloColor));
-    }
     
     renderAllShapes();
 }
