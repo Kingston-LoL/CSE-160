@@ -300,10 +300,10 @@ function drawPicture() {
     var featureColor = [0.1, 0.1, 0.1, 1.0]; // Black for features
     var haloColor = [0.8, 0.8, 0.9, 1.0]; // Light for halo
     
-    // Scale factor for the creature
-    var scale = 2.0;
+    // Scale factor for the creature - smaller overall
+    var scale = 1.0; // Reduced from 2.0 to make everything smaller
     var bodyWidth = 100 * scale;
-    var bodyHeight = 140 * scale;
+    var bodyHeight = 140 * scale; // This is the biggest shape size
     
     // Main body/head - SQUARE (rectangle made of 2 triangles)
     var bodyLeft = centerX - bodyWidth / 2;
@@ -316,72 +316,73 @@ function drawPicture() {
     // Body square - triangle 2
     shapesList.push(new Triangle(bodyRight, bodyTop, bodyRight, bodyBottom, bodyLeft, bodyBottom, bodyColor));
     
-    // Ears - TWO TRIANGLES (one for each ear) - BIGGER
-    var earSize = 80 * scale; // Increased from 50
-    var earTopY = bodyTop - 25 * scale; // Moved higher
+    // Ears - TWO TRIANGLES (one for each ear) - proportional to body
+    var earSize = bodyHeight * 0.4; // Proportional to body height
+    var earTopY = bodyTop - bodyHeight * 0.15; // Proportional to body
     
-    // Left ear - single triangle (bigger)
-    var leftEarX = bodyLeft - 20 * scale; // Extended further out
-    shapesList.push(new Triangle(bodyLeft, bodyTop, leftEarX, earTopY, bodyLeft + 25 * scale, bodyTop + 35 * scale, bodyColor));
+    // Left ear - single triangle
+    var leftEarX = bodyLeft - bodyWidth * 0.15; // Proportional to body width
+    shapesList.push(new Triangle(bodyLeft, bodyTop, leftEarX, earTopY, bodyLeft + bodyWidth * 0.15, bodyTop + bodyHeight * 0.2, bodyColor));
     
-    // Right ear - single triangle (bigger)
-    var rightEarX = bodyRight + 20 * scale; // Extended further out
-    shapesList.push(new Triangle(bodyRight, bodyTop, rightEarX, earTopY, bodyRight - 25 * scale, bodyTop + 35 * scale, bodyColor));
+    // Right ear - single triangle
+    var rightEarX = bodyRight + bodyWidth * 0.15; // Proportional to body width
+    shapesList.push(new Triangle(bodyRight, bodyTop, rightEarX, earTopY, bodyRight - bodyWidth * 0.15, bodyTop + bodyHeight * 0.2, bodyColor));
     
-    // Eyes - 2 upward-pointing triangles
-    var eyeSize = 18 * scale;
-    var eyeY = centerY - 35 * scale;
-    var leftEyeX = centerX - 25 * scale;
-    var rightEyeX = centerX + 25 * scale;
+    // Eyes - 2 upward-pointing triangles (proportional to body)
+    var eyeSize = bodyHeight * 0.1; // Proportional to body height
+    var eyeY = centerY - bodyHeight * 0.2; // Proportional to body
+    var leftEyeX = centerX - bodyWidth * 0.2; // Proportional to body width
+    var rightEyeX = centerX + bodyWidth * 0.2; // Proportional to body width
     
     // Left eye (upward triangle)
     shapesList.push(new Triangle(leftEyeX, eyeY, leftEyeX - eyeSize/2, eyeY - eyeSize, leftEyeX + eyeSize/2, eyeY - eyeSize, featureColor));
     // Right eye (upward triangle)
     shapesList.push(new Triangle(rightEyeX, eyeY, rightEyeX - eyeSize/2, eyeY - eyeSize, rightEyeX + eyeSize/2, eyeY - eyeSize, featureColor));
     
-    // Nose - 1 inverted triangle
-    var noseSize = 12 * scale;
+    // Nose - 1 inverted triangle (proportional to body)
+    var noseSize = bodyHeight * 0.06; // Proportional to body height
     var noseX = centerX;
-    var noseY = centerY - 10 * scale;
+    var noseY = centerY - bodyHeight * 0.05; // Proportional to body
     shapesList.push(new Triangle(noseX, noseY, noseX - noseSize/2, noseY + noseSize, noseX + noseSize/2, noseY + noseSize, featureColor));
     
-    // Mouth - horizontal line (2 triangles for a small rectangle)
-    var mouthWidth = 25 * scale;
-    var mouthHeight = 4 * scale;
-    var mouthY = centerY + 15 * scale;
+    // Mouth - horizontal line (2 triangles for a small rectangle) (proportional to body)
+    var mouthWidth = bodyWidth * 0.2; // Proportional to body width
+    var mouthHeight = bodyHeight * 0.02; // Proportional to body height
+    var mouthY = centerY + bodyHeight * 0.08; // Proportional to body
     var mouthLeft = centerX - mouthWidth / 2;
     var mouthRight = centerX + mouthWidth / 2;
     shapesList.push(new Triangle(mouthLeft, mouthY, mouthRight, mouthY, mouthLeft, mouthY + mouthHeight, featureColor));
     shapesList.push(new Triangle(mouthRight, mouthY, mouthRight, mouthY + mouthHeight, mouthLeft, mouthY + mouthHeight, featureColor));
     
-    // Wings - TWO SMALL TRIANGLES that combine to form a big triangle (positioned like feet triangles, BIGGER)
-    var wingSize = 120 * scale; // Increased from 80
+    // Wings - TWO SMALL TRIANGLES that combine to form a big triangle (positioned like feet triangles)
+    // Wings should match body height (biggest shape size)
+    var wingSize = bodyHeight; // Match the biggest shape size (body height)
     var wingY = centerY;
     
-    // Left wing - two triangles that combine to form a big triangle (pointing downward like feet, extended outward)
-    var leftWingX = centerX - 50 * scale; // Moved further out from center
-    var leftWingTopY = wingY - 30 * scale; // Extended higher
-    var leftWingBottomY = wingY + 80 * scale; // Extended lower
+    // Left wing - two triangles that combine to form a big triangle (pointing downward like feet)
+    var leftWingX = centerX - 30 * scale; // Proportional to body
+    var leftWingTopY = wingY - 20 * scale; // Proportional to body
+    var leftWingBottomY = wingY + bodyHeight * 0.4; // Proportional to body height
     // Left wing triangle 1 (left part - extends further out)
     shapesList.push(new Triangle(leftWingX, leftWingTopY, leftWingX - wingSize/2, leftWingBottomY, leftWingX, leftWingBottomY, bodyColor));
     // Left wing triangle 2 (right part - extends further out)
     shapesList.push(new Triangle(leftWingX, leftWingTopY, leftWingX + wingSize/2, leftWingBottomY, leftWingX, leftWingBottomY, bodyColor));
     
-    // Right wing - two triangles that combine to form a big triangle (pointing downward like feet, extended outward)
-    var rightWingX = centerX + 50 * scale; // Moved further out from center
-    var rightWingTopY = wingY - 30 * scale; // Extended higher
-    var rightWingBottomY = wingY + 80 * scale; // Extended lower
+    // Right wing - two triangles that combine to form a big triangle (pointing downward like feet)
+    var rightWingX = centerX + 30 * scale; // Proportional to body
+    var rightWingTopY = wingY - 20 * scale; // Proportional to body
+    var rightWingBottomY = wingY + bodyHeight * 0.4; // Proportional to body height
     // Right wing triangle 1 (left part - extends further out)
     shapesList.push(new Triangle(rightWingX, rightWingTopY, rightWingX - wingSize/2, rightWingBottomY, rightWingX, rightWingBottomY, bodyColor));
     // Right wing triangle 2 (right part - extends further out)
     shapesList.push(new Triangle(rightWingX, rightWingTopY, rightWingX + wingSize/2, rightWingBottomY, rightWingX, rightWingBottomY, bodyColor));
     
-    // Legs - TWO SQUARES (rectangles) connecting to triangles (feet)
-    var legWidth = 20 * scale;
-    var legHeight = 30 * scale;
+    // Legs - TWO SQUARES (rectangles) connecting to triangles (feet) (proportional to body)
+    var legWidth = bodyWidth * 0.15; // Proportional to body width
+    var legHeight = bodyHeight * 0.15; // Proportional to body height
     var legTopY = bodyBottom;
-    var leftLegX = centerX - 30 * scale;
-    var rightLegX = centerX + 30 * scale;
+    var leftLegX = centerX - bodyWidth * 0.25; // Proportional to body width
+    var rightLegX = centerX + bodyWidth * 0.25; // Proportional to body width
     
     // Left leg - square (2 triangles)
     var leftLegLeft = leftLegX - legWidth / 2;
@@ -397,9 +398,9 @@ function drawPicture() {
     shapesList.push(new Triangle(rightLegLeft, legTopY, rightLegRight, legTopY, rightLegLeft, rightLegBottom, bodyColor));
     shapesList.push(new Triangle(rightLegRight, legTopY, rightLegRight, rightLegBottom, rightLegLeft, rightLegBottom, bodyColor));
     
-    // Feet - triangles connected to the leg squares
-    var footSize = 20 * scale;
-    var footY = leftLegBottom + 5 * scale;
+    // Feet - triangles connected to the leg squares (proportional to body)
+    var footSize = bodyHeight * 0.1; // Proportional to body height
+    var footY = leftLegBottom + bodyHeight * 0.02; // Proportional to body
     
     // Left foot - inverted triangle
     shapesList.push(new Triangle(leftLegX, footY, leftLegX - footSize/2, footY + footSize, leftLegX + footSize/2, footY + footSize, featureColor));
@@ -408,9 +409,9 @@ function drawPicture() {
     
     // Halo/Aura - arc of circles at the top of head (like an angle/arch)
     // Creating an arc above the head using multiple small triangles
-    var haloRadius = 80 * scale;
+    var haloRadius = bodyHeight * 0.5; // Proportional to body height
     var haloCenterX = centerX;
-    var haloCenterY = bodyTop - 70 * scale; // Moved higher above the head
+    var haloCenterY = bodyTop - bodyHeight * 0.3; // Proportional to body height
     var haloStartAngle = Math.PI * 0.25; // Start angle
     var haloEndAngle = Math.PI * 0.75; // End angle
     var haloSegments = 16; // Number of segments in the arc
