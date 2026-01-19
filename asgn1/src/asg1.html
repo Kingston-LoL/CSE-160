@@ -8,6 +8,31 @@
         background-color: #4CAF50;
         color: white;
       }
+      input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 150px;
+        height: 5px;
+        background: #ddd;
+        outline: none;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 15px;
+        height: 15px;
+        background: #666;
+        cursor: pointer;
+        border-radius: 50%;
+      }
+      input[type="range"]::-moz-range-thumb {
+        width: 15px;
+        height: 15px;
+        background: #666;
+        cursor: pointer;
+        border-radius: 50%;
+        border: none;
+      }
     </style>
   </head>
 
@@ -33,6 +58,9 @@
       </label>
       <label>Green: 
         <input type="range" id="slider-green" min="0" max="100" value="100">
+      </label>
+      <label>Blue: 
+        <input type="range" id="slider-blue" min="0" max="100" value="100">
       </label>
       
       <br><br>
