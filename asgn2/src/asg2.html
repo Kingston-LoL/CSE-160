@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Assignment 2 - Blocky Horse</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #1a1a2e;
+        color: #eee;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        gap: 20px;
+      }
+      #canvas-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      canvas {
+        border: 2px solid #4a4a6a;
+        border-radius: 8px;
+        cursor: grab;
+      }
+      canvas:active {
+        cursor: grabbing;
+      }
+      #controls {
+        background: #16213e;
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 320px;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+      h2 {
+        color: #e94560;
+        margin-top: 0;
+        border-bottom: 2px solid #e94560;
+        padding-bottom: 10px;
+      }
+      h3 {
+        color: #0f3460;
+        background: #e94560;
+        padding: 5px 10px;
+        border-radius: 4px;
+        margin: 15px 0 10px 0;
+        font-size: 14px;
+      }
+      .control-group {
+        margin-bottom: 10px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 13px;
+      }
+      input[type="range"] {
+        width: 100%;
+        height: 6px;
+        background: #0f3460;
+        border-radius: 3px;
+        outline: none;
+        -webkit-appearance: none;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 16px;
+        height: 16px;
+        background: #e94560;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+      input[type="range"]::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+        background: #e94560;
+        border-radius: 50%;
+        cursor: pointer;
+        border: none;
+      }
+      button {
+        background: #e94560;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        margin: 5px 5px 5px 0;
+        transition: background 0.3s;
+      }
+      button:hover {
+        background: #ff6b6b;
+      }
+      button.active {
+        background: #4CAF50;
+      }
+      #performance {
+        background: #0f3460;
+        padding: 10px;
+        border-radius: 5px;
+        font-family: monospace;
+        font-size: 14px;
+        margin-top: 10px;
+      }
+      #instructions {
+        font-size: 12px;
+        color: #aaa;
+        margin-top: 15px;
+        padding: 10px;
+        background: #0f3460;
+        border-radius: 5px;
+      }
+      .slider-value {
+        float: right;
+        color: #e94560;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="canvas-container">
+      <canvas id="webgl" width="600" height="600">
+        Please use a browser that supports WebGL
+      </canvas>
+      <div id="performance">
+        FPS: <span id="fps">0</span> | 
+        MS: <span id="ms">0</span>ms | 
+        Triangles: <span id="triangles">0</span>
+      </div>
+    </div>
+    
+    <div id="controls">
+      <h2>Blocky Horse</h2>
+      
+      <h3>Animation Controls</h3>
+      <button id="btn-animate">Start Animation</button>
+      <button id="btn-reset">Reset Pose</button>
+      
+      <h3>Camera Rotation</h3>
+      <div class="control-group">
+        <label>X Rotation: <span class="slider-value" id="val-camX">0</span>°</label>
+        <input type="range" id="slider-camX" min="-180" max="180" value="0">
+      </div>
+      <div class="control-group">
+        <label>Y Rotation: <span class="slider-value" id="val-camY">0</span>°</label>
+        <input type="range" id="slider-camY" min="-180" max="180" value="0">
+      </div>
+      
+      <h3>Front Left Leg (3-Level Joint)</h3>
+      <div class="control-group">
+        <label>Upper Leg: <span class="slider-value" id="val-fl-upper">0</span>°</label>
+        <input type="range" id="slider-fl-upper" min="-45" max="45" value="0">
+      </div>
+      <div class="control-group">
+        <label>Lower Leg: <span class="slider-value" id="val-fl-lower">0</span>°</label>
+        <input type="range" id="slider-fl-lower" min="-60" max="30" value="0">
+      </div>
+      <div class="control-group">
+        <label>Hoof: <span class="slider-value" id="val-fl-hoof">0</span>°</label>
+        <input type="range" id="slider-fl-hoof" min="-30" max="30" value="0">
+      </div>
+      
+      <h3>Front Right Leg</h3>
+      <div class="control-group">
+        <label>Upper Leg: <span class="slider-value" id="val-fr-upper">0</span>°</label>
+        <input type="range" id="slider-fr-upper" min="-45" max="45" value="0">
+      </div>
+      <div class="control-group">
+        <label>Lower Leg: <span class="slider-value" id="val-fr-lower">0</span>°</label>
+        <input type="range" id="slider-fr-lower" min="-60" max="30" value="0">
+      </div>
+      
+      <h3>Back Left Leg</h3>
+      <div class="control-group">
+        <label>Upper Leg: <span class="slider-value" id="val-bl-upper">0</span>°</label>
+        <input type="range" id="slider-bl-upper" min="-45" max="45" value="0">
+      </div>
+      <div class="control-group">
+        <label>Lower Leg: <span class="slider-value" id="val-bl-lower">0</span>°</label>
+        <input type="range" id="slider-bl-lower" min="-60" max="30" value="0">
+      </div>
+      
+      <h3>Back Right Leg</h3>
+      <div class="control-group">
+        <label>Upper Leg: <span class="slider-value" id="val-br-upper">0</span>°</label>
+        <input type="range" id="slider-br-upper" min="-45" max="45" value="0">
+      </div>
+      <div class="control-group">
+        <label>Lower Leg: <span class="slider-value" id="val-br-lower">0</span>°</label>
+        <input type="range" id="slider-br-lower" min="-60" max="30" value="0">
+      </div>
+      
+      <h3>Head & Tail</h3>
+      <div class="control-group">
+        <label>Head Nod: <span class="slider-value" id="val-head">0</span>°</label>
+        <input type="range" id="slider-head" min="-30" max="30" value="0">
+      </div>
+      <div class="control-group">
+        <label>Tail Wag: <span class="slider-value" id="val-tail">0</span>°</label>
+        <input type="range" id="slider-tail" min="-45" max="45" value="0">
+      </div>
+      
+      <div id="instructions">
+        <strong>Controls:</strong><br>
+        • Drag mouse to rotate camera<br>
+        • Shift+Click for poke animation<br>
+        • Use sliders to pose manually<br>
+        • Animation overrides manual controls
+      </div>
+    </div>
+    
+    <!-- Vertex Shader -->
+    <script id="vertex-shader" type="x-shader/x-vertex">
+      attribute vec4 a_Position;
+      uniform mat4 u_ModelMatrix;
+      uniform mat4 u_GlobalRotation;
+      
+      void main() {
+        gl_Position = u_GlobalRotation * u_ModelMatrix * a_Position;
+      }
+    </script>
+    
+    <!-- Fragment Shader -->
+    <script id="fragment-shader" type="x-shader/x-fragment">
+      precision mediump float;
+      uniform vec4 u_FragColor;
+      
+      void main() {
+        gl_FragColor = u_FragColor;
+      }
+    </script>
+    
+    <script src="../../lib/cuon-matrix-cse160.js"></script>
+    <script src="Cube.js"></script>
+    <script src="Cylinder.js"></script>
+    <script src="asg2.js"></script>
+  </body>
+</html>
