@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>CSE160 Assignment 3 - Horsekeeper World</title>
+    <style>
+      body {
+        margin: 0;
+        background: #10131a;
+        color: #e6edf3;
+        font-family: Arial, sans-serif;
+      }
+      #wrap {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 12px;
+        padding: 12px;
+      }
+      #left {
+        position: relative;
+      }
+      canvas {
+        width: 100%;
+        max-width: 980px;
+        aspect-ratio: 16 / 10;
+        display: block;
+        border: 1px solid #2f3b50;
+        background: #000;
+      }
+      #hud {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        padding: 8px 10px;
+        background: rgba(0, 0, 0, 0.55);
+        border: 1px solid #2f3b50;
+        font-size: 13px;
+        line-height: 1.35;
+      }
+      #panel {
+        background: #161c26;
+        border: 1px solid #2f3b50;
+        padding: 12px;
+      }
+      #winScreen {
+        position: absolute;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(4, 10, 20, 0.78);
+        z-index: 5;
+      }
+      #winCard {
+        min-width: 340px;
+        max-width: 560px;
+        padding: 18px 20px;
+        border: 1px solid #3f5f86;
+        background: #112036;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      }
+      #winTitle {
+        margin: 0 0 8px;
+        color: #7df79a;
+        font-size: 28px;
+      }
+      h2 {
+        margin: 0 0 10px;
+        font-size: 18px;
+      }
+      .muted {
+        color: #aab6c6;
+        font-size: 13px;
+      }
+      button {
+        margin-top: 8px;
+        padding: 8px 12px;
+        border: 1px solid #2f3b50;
+        color: #e6edf3;
+        background: #222b39;
+        cursor: pointer;
+      }
+      .k {
+        color: #6ad6ff;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="wrap">
+      <div id="left">
+        <canvas id="webgl" width="980" height="612"></canvas>
+        <div id="winScreen">
+          <div id="winCard">
+            <h1 id="winTitle">You Win!</h1>
+            <p id="winText">You opened the north gate and guided the horse home.</p>
+            <button id="playAgainBtn">Play Again</button>
+          </div>
+        </div>
+        <div id="hud">
+          <div id="objective">Objective: collect 5 lanterns and open the stable gate.</div>
+          <div id="status">Lanterns: 0/5</div>
+          <div id="perf">FPS: 0 | Cubes: 0</div>
+        </div>
+      </div>
+      <aside id="panel">
+        <h2>Horsekeeper World</h2>
+        <div class="muted">
+          Movement: <span class="k">W A S D</span><br />
+          Turn: <span class="k">Q / E</span><br />
+          Mouse look: click canvas, move mouse<br />
+          Add block ahead: <span class="k">R</span><br />
+          Delete block ahead: <span class="k">F</span><br />
+          Jump: <span class="k">Space</span>
+        </div>
+        <button id="resetBtn">Reset Player</button>
+        <p class="muted">
+          Story: You are the stable keeper. Light 5 lanterns to guide your horse home.
+          When all are lit, the stable gate opens.
+        </p>
+      </aside>
+    </div>
+
+    <script id="vertex-shader" type="x-shader/x-vertex">
+      attribute vec4 a_Position;
+      attribute vec2 a_UV;
+      uniform mat4 u_ModelMatrix;
+      uniform mat4 u_ViewMatrix;
+      uniform mat4 u_ProjectionMatrix;
+      varying vec2 v_UV;
+      void main() {
+        gl_Position = u_ProjectionMatrix * u_ViewMatrix * u_ModelMatrix * a_Position;
+        v_UV = a_UV;
+      }
+    </script>
+
+    <script id="fragment-shader" type="x-shader/x-fragment">
+      precision mediump float;
+      varying vec2 v_UV;
+      uniform vec4 u_FragColor;
+      uniform sampler2D u_Sampler0;
+      uniform sampler2D u_Sampler1;
+      uniform sampler2D u_Sampler2;
+      uniform int u_TextureIndex;
+      uniform float u_texColorWeight;
+      void main() {
+        vec4 texColor = vec4(1.0);
+        if (u_TextureIndex == 0) {
+          texColor = texture2D(u_Sampler0, v_UV);
+        } else if (u_TextureIndex == 1) {
+          texColor = texture2D(u_Sampler1, v_UV);
+        } else {
+          texColor = texture2D(u_Sampler2, v_UV);
+        }
+        gl_FragColor = (1.0 - u_texColorWeight) * u_FragColor + u_texColorWeight * texColor;
+      }
+    </script>
+
+    <script src="../../lib/cuon-matrix-cse160.js"></script>
+    <script src="camera.js"></script>
+    <script src="Cube.js"></script>
+    <script src="asg3.js"></script>
+  </body>
+</html>
