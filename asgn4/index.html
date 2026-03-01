@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSE160 ASGN4 - Lighting and OBJ</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      min-height: 100vh;
+    }
+
+    #glcanvas {
+      width: 100%;
+      height: 100vh;
+      display: block;
+      background: #000;
+    }
+
+    .panel {
+      padding: 12px;
+      overflow: auto;
+      border-left: 1px solid #333;
+      background: #161616;
+    }
+
+    h2, h3 {
+      margin: 10px 0 8px;
+      font-weight: 600;
+    }
+
+    .row {
+      margin: 8px 0;
+      display: grid;
+      gap: 4px;
+    }
+
+    label {
+      font-size: 13px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    button {
+      margin-right: 8px;
+      margin-top: 6px;
+      background: #2b2b2b;
+      color: #eee;
+      border: 1px solid #444;
+      border-radius: 4px;
+      padding: 6px 10px;
+      cursor: pointer;
+    }
+
+    button.active {
+      background: #4a7c2f;
+      border-color: #6cb342;
+    }
+
+    .note {
+      font-size: 12px;
+      color: #bbb;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="glcanvas" width="1280" height="720"></canvas>
+  <div class="panel">
+    <h2>ASGN4 Controls</h2>
+
+    <h3>Toggles</h3>
+    <button id="toggleLighting">Lighting: ON</button>
+    <button id="toggleNormals">Show Normals: OFF</button>
+    <button id="togglePoint">Point Light: ON</button>
+    <button id="toggleSpot">Spot Light: ON</button>
+    <button id="toggleAnimate">Animate Point Light: ON</button>
+
+    <h3>Point Light Position</h3>
+    <div class="row">
+      <label for="lightX">Light X</label>
+      <input id="lightX" type="range" min="-6" max="6" value="2" step="0.01" />
+    </div>
+    <div class="row">
+      <label for="lightY">Light Y</label>
+      <input id="lightY" type="range" min="-1" max="8" value="2.5" step="0.01" />
+    </div>
+    <div class="row">
+      <label for="lightZ">Light Z</label>
+      <input id="lightZ" type="range" min="-6" max="6" value="2" step="0.01" />
+    </div>
+
+    <h3>Point Light Color</h3>
+    <div class="row">
+      <label for="lightR">Light R</label>
+      <input id="lightR" type="range" min="0" max="1" value="1" step="0.01" />
+    </div>
+    <div class="row">
+      <label for="lightG">Light G</label>
+      <input id="lightG" type="range" min="0" max="1" value="1" step="0.01" />
+    </div>
+    <div class="row">
+      <label for="lightB">Light B</label>
+      <input id="lightB" type="range" min="0" max="1" value="1" step="0.01" />
+    </div>
+
+    <h3>Spot Light</h3>
+    <div class="row">
+      <label for="spotCutoff">Spot Cutoff (degrees)</label>
+      <input id="spotCutoff" type="range" min="8" max="45" value="20" step="1" />
+    </div>
+
+    <h3>Camera</h3>
+    <div class="row">
+      <label for="camYaw">Yaw</label>
+      <input id="camYaw" type="range" min="-180" max="180" value="35" step="1" />
+    </div>
+    <div class="row">
+      <label for="camPitch">Pitch</label>
+      <input id="camPitch" type="range" min="-80" max="80" value="18" step="1" />
+    </div>
+    <div class="row">
+      <label for="camDist">Distance</label>
+      <input id="camDist" type="range" min="4" max="20" value="11" step="0.1" />
+    </div>
+
+    <p class="note">
+      Arrow keys also rotate camera. Q/E zoom.
+      <br />
+      Includes: cube, spheres, moving point light marker, spotlight, Phong shading,
+      normal visualization, and OBJ loading.
+    </p>
+  </div>
+
+  <script src="./main.js"></script>
+</body>
+</html>
