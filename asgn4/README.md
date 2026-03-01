@@ -1,12 +1,4 @@
 ## CSE160 ASGN4 - Lighting + OBJ
-
-### Run
-
-Use any local server from this folder (`asgn4`) so OBJ fetching works:
-
-- `python -m http.server 8000`
-- then open `http://localhost:8000`
-
 ### Implemented Requirements
 
 - Cube in scene
@@ -26,4 +18,5 @@ Use any local server from this folder (`asgn4`) so OBJ fetching works:
 - Spot light added with cutoff slider
 - Point and spot lights can be toggled individually
 - OBJ model loaded (`models/icosahedron.obj`)
-- World-like scene integration (ground/walls + objects)
+- ASGN2 horse integrated into scene with lighting
+- Horse animation toggle (`Animate Horse`)
