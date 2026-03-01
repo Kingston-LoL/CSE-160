@@ -206,6 +206,7 @@ function main() {
   };
 
   app.meshes.cube = createMesh(gl, createCubeData());
+  app.meshes.unitCube = createMesh(gl, createUnitCubeData());
   app.meshes.sphere = createMesh(gl, createSphereData(28, 18));
   app.meshes.cylinder = createMesh(gl, createCylinderData(16));
   app.meshes.cone = createMesh(gl, createConeData(12));
@@ -478,6 +479,52 @@ function createCubeData() {
     // Bottom
     0, -1, 0, 0, -1, 0, 0, -1, 0,
     0, -1, 0, 0, -1, 0, 0, -1, 0
+  ];
+
+  return { positions, normals };
+}
+
+function createUnitCubeData() {
+  const positions = [
+    // Front (z=0)
+    0, 0, 0, 1, 1, 0, 1, 0, 0,
+    0, 0, 0, 0, 1, 0, 1, 1, 0,
+    // Back (z=1)
+    0, 0, 1, 1, 0, 1, 1, 1, 1,
+    0, 0, 1, 1, 1, 1, 0, 1, 1,
+    // Top (y=1)
+    0, 1, 0, 0, 1, 1, 1, 1, 1,
+    0, 1, 0, 1, 1, 1, 1, 1, 0,
+    // Bottom (y=0)
+    0, 0, 0, 1, 0, 0, 1, 0, 1,
+    0, 0, 0, 1, 0, 1, 0, 0, 1,
+    // Right (x=1)
+    1, 0, 0, 1, 1, 0, 1, 1, 1,
+    1, 0, 0, 1, 1, 1, 1, 0, 1,
+    // Left (x=0)
+    0, 0, 0, 0, 0, 1, 0, 1, 1,
+    0, 0, 0, 0, 1, 1, 0, 1, 0
+  ];
+
+  const normals = [
+    // Front
+    0, 0, -1, 0, 0, -1, 0, 0, -1,
+    0, 0, -1, 0, 0, -1, 0, 0, -1,
+    // Back
+    0, 0, 1, 0, 0, 1, 0, 0, 1,
+    0, 0, 1, 0, 0, 1, 0, 0, 1,
+    // Top
+    0, 1, 0, 0, 1, 0, 0, 1, 0,
+    0, 1, 0, 0, 1, 0, 0, 1, 0,
+    // Bottom
+    0, -1, 0, 0, -1, 0, 0, -1, 0,
+    0, -1, 0, 0, -1, 0, 0, -1, 0,
+    // Right
+    1, 0, 0, 1, 0, 0, 1, 0, 0,
+    1, 0, 0, 1, 0, 0, 1, 0, 0,
+    // Left
+    -1, 0, 0, -1, 0, 0, -1, 0, 0,
+    -1, 0, 0, -1, 0, 0, -1, 0, 0
   ];
 
   return { positions, normals };
@@ -762,18 +809,18 @@ function drawHorse(t) {
   const root = modelTRS([-1.7, -0.1, 2.3], [0, degToRad(100), 0], [2.8, 2.8, 2.8]);
 
   // Body
-  drawObject(app.meshes.cube, HORSE_COLORS.body, applyLocalTRS(root, [-0.25, -0.05, -0.1], [0, 0, 0], [0.5, 0.22, 0.2]));
-  drawObject(app.meshes.cube, HORSE_COLORS.body, applyLocalTRS(root, [0.15, -0.03, -0.11], [0, 0, 0], [0.12, 0.18, 0.22]));
-  drawObject(app.meshes.cube, HORSE_COLORS.body, applyLocalTRS(root, [-0.27, -0.02, -0.11], [0, 0, 0], [0.1, 0.17, 0.22]));
+  drawObject(app.meshes.unitCube, HORSE_COLORS.body, applyLocalTRS(root, [-0.25, -0.05, -0.1], [0, 0, 0], [0.5, 0.22, 0.2]));
+  drawObject(app.meshes.unitCube, HORSE_COLORS.body, applyLocalTRS(root, [0.15, -0.03, -0.11], [0, 0, 0], [0.12, 0.18, 0.22]));
+  drawObject(app.meshes.unitCube, HORSE_COLORS.body, applyLocalTRS(root, [-0.27, -0.02, -0.11], [0, 0, 0], [0.1, 0.17, 0.22]));
 
   // Neck
-  drawObject(app.meshes.cube, HORSE_COLORS.body, applyLocalTRS(root, [0.18, 0.1, -0.04], [0, 0, degToRad(-35)], [0.1, 0.25, 0.08]));
-  drawObject(app.meshes.cube, HORSE_COLORS.dark, applyLocalTRS(root, [0.2, 0.08, -0.03], [0, 0, degToRad(-35)], [0.08, 0.2, 0.06]));
+  drawObject(app.meshes.unitCube, HORSE_COLORS.body, applyLocalTRS(root, [0.18, 0.1, -0.04], [0, 0, degToRad(-35)], [0.1, 0.25, 0.08]));
+  drawObject(app.meshes.unitCube, HORSE_COLORS.dark, applyLocalTRS(root, [0.2, 0.08, -0.03], [0, 0, degToRad(-35)], [0.08, 0.2, 0.06]));
 
   // Mane
   for (let i = 0; i < 6; i++) {
     drawObject(
-      app.meshes.cube,
+      app.meshes.unitCube,
       HORSE_COLORS.mane,
       applyLocalTRS(
         root,
@@ -789,17 +836,17 @@ function drawHorse(t) {
   mat4Translate(headBase, headBase, [0.32, 0.32, -0.05]);
   mat4RotateZ(headBase, headBase, headAngle);
 
-  drawObject(app.meshes.cube, HORSE_COLORS.body, applyLocalTRS(headBase, [0, 0, 0], [0, 0, 0], [0.15, 0.1, 0.1]));
-  drawObject(app.meshes.cube, HORSE_COLORS.body, applyLocalTRS(headBase, [0.08, -0.06, 0.01], [0, 0, 0], [0.14, 0.08, 0.08]));
-  drawObject(app.meshes.cube, HORSE_COLORS.dark, applyLocalTRS(headBase, [0.18, -0.08, 0.015], [0, 0, 0], [0.1, 0.06, 0.07]));
+  drawObject(app.meshes.unitCube, HORSE_COLORS.body, applyLocalTRS(headBase, [0, 0, 0], [0, 0, 0], [0.15, 0.1, 0.1]));
+  drawObject(app.meshes.unitCube, HORSE_COLORS.body, applyLocalTRS(headBase, [0.08, -0.06, 0.01], [0, 0, 0], [0.14, 0.08, 0.08]));
+  drawObject(app.meshes.unitCube, HORSE_COLORS.dark, applyLocalTRS(headBase, [0.18, -0.08, 0.015], [0, 0, 0], [0.1, 0.06, 0.07]));
   drawObject(app.meshes.cylinder, HORSE_COLORS.dark, applyLocalTRS(headBase, [0.28, -0.08, 0.025], [0, degToRad(90), 0], [0.05, 0.05, 0.04]));
-  drawObject(app.meshes.cube, HORSE_COLORS.mane, applyLocalTRS(headBase, [0.28, -0.07, 0.02], [0, 0, 0], [0.012, 0.015, 0.012]));
-  drawObject(app.meshes.cube, HORSE_COLORS.mane, applyLocalTRS(headBase, [0.28, -0.07, 0.065], [0, 0, 0], [0.012, 0.015, 0.012]));
-  drawObject(app.meshes.cube, HORSE_COLORS.eye, applyLocalTRS(headBase, [0.1, 0.04, -0.01], [0, 0, 0], [0.025, 0.03, 0.015]));
-  drawObject(app.meshes.cube, HORSE_COLORS.eye, applyLocalTRS(headBase, [0.1, 0.04, 0.095], [0, 0, 0], [0.025, 0.03, 0.015]));
+  drawObject(app.meshes.unitCube, HORSE_COLORS.mane, applyLocalTRS(headBase, [0.28, -0.07, 0.02], [0, 0, 0], [0.012, 0.015, 0.012]));
+  drawObject(app.meshes.unitCube, HORSE_COLORS.mane, applyLocalTRS(headBase, [0.28, -0.07, 0.065], [0, 0, 0], [0.012, 0.015, 0.012]));
+  drawObject(app.meshes.unitCube, HORSE_COLORS.eye, applyLocalTRS(headBase, [0.1, 0.04, -0.01], [0, 0, 0], [0.025, 0.03, 0.015]));
+  drawObject(app.meshes.unitCube, HORSE_COLORS.eye, applyLocalTRS(headBase, [0.1, 0.04, 0.095], [0, 0, 0], [0.025, 0.03, 0.015]));
   drawObject(app.meshes.cone, HORSE_COLORS.body, applyLocalTRS(headBase, [0.04, 0.1, -0.01], [degToRad(-15), 0, 0], [0.025, 0.07, 0.025]));
   drawObject(app.meshes.cone, HORSE_COLORS.body, applyLocalTRS(headBase, [0.04, 0.1, 0.09], [degToRad(15), 0, 0], [0.025, 0.07, 0.025]));
-  drawObject(app.meshes.cube, HORSE_COLORS.mane, applyLocalTRS(headBase, [0.02, 0.08, 0.02], [0, 0, 0], [0.04, 0.06, 0.06]));
+  drawObject(app.meshes.unitCube, HORSE_COLORS.mane, applyLocalTRS(headBase, [0.02, 0.08, 0.02], [0, 0, 0], [0.04, 0.06, 0.06]));
 
   // Tail hierarchy base
   const tailBase = mat4Clone(root);
@@ -807,8 +854,8 @@ function drawHorse(t) {
   mat4RotateZ(tailBase, tailBase, tailAngle);
   mat4RotateZ(tailBase, tailBase, degToRad(135));
   drawObject(app.meshes.cylinder, HORSE_COLORS.mane, applyLocalTRS(tailBase, [0, 0, 0], [0, 0, 0], [0.04, 0.2, 0.04]));
-  drawObject(app.meshes.cube, HORSE_COLORS.mane, applyLocalTRS(tailBase, [-0.03, 0.18, -0.03], [0, 0, 0], [0.06, 0.12, 0.06]));
-  drawObject(app.meshes.cube, HORSE_COLORS.mane, applyLocalTRS(tailBase, [-0.02, 0.25, -0.02], [0, 0, 0], [0.04, 0.08, 0.04]));
+  drawObject(app.meshes.unitCube, HORSE_COLORS.mane, applyLocalTRS(tailBase, [-0.03, 0.18, -0.03], [0, 0, 0], [0.06, 0.12, 0.06]));
+  drawObject(app.meshes.unitCube, HORSE_COLORS.mane, applyLocalTRS(tailBase, [-0.02, 0.25, -0.02], [0, 0, 0], [0.04, 0.08, 0.04]));
 
   // Legs (ASG2 hierarchy)
   drawHorseLeg(root, [0.18, -0.05, 0.07], upperA, lowerA, hoofA);
@@ -821,18 +868,18 @@ function drawHorseLeg(root, basePos, upperAngle, lowerAngle, hoofAngle) {
   const upperBase = mat4Clone(root);
   mat4Translate(upperBase, upperBase, basePos);
   mat4RotateZ(upperBase, upperBase, upperAngle);
-  drawObject(app.meshes.cube, HORSE_COLORS.body, applyLocalTRS(upperBase, [-0.03, -0.13, -0.03], [0, 0, 0], [0.06, 0.13, 0.06]));
+  drawObject(app.meshes.unitCube, HORSE_COLORS.body, applyLocalTRS(upperBase, [-0.03, -0.13, -0.03], [0, 0, 0], [0.06, 0.13, 0.06]));
 
   const lowerBase = mat4Clone(upperBase);
   mat4Translate(lowerBase, lowerBase, [0, -0.13, 0]);
   mat4RotateZ(lowerBase, lowerBase, lowerAngle);
-  drawObject(app.meshes.cube, HORSE_COLORS.body, applyLocalTRS(lowerBase, [-0.018, -0.13, -0.018], [0, 0, 0], [0.036, 0.13, 0.036]));
-  drawObject(app.meshes.cube, HORSE_COLORS.dark, applyLocalTRS(lowerBase, [-0.022, -0.12, -0.022], [0, 0, 0], [0.044, 0.03, 0.044]));
+  drawObject(app.meshes.unitCube, HORSE_COLORS.body, applyLocalTRS(lowerBase, [-0.018, -0.13, -0.018], [0, 0, 0], [0.036, 0.13, 0.036]));
+  drawObject(app.meshes.unitCube, HORSE_COLORS.dark, applyLocalTRS(lowerBase, [-0.022, -0.12, -0.022], [0, 0, 0], [0.044, 0.03, 0.044]));
 
   const hoofBase = mat4Clone(lowerBase);
   mat4Translate(hoofBase, hoofBase, [0, -0.13, 0]);
   mat4RotateZ(hoofBase, hoofBase, hoofAngle);
-  drawObject(app.meshes.cube, HORSE_COLORS.hoof, applyLocalTRS(hoofBase, [-0.025, -0.045, -0.025], [0, 0, 0], [0.05, 0.045, 0.05]));
+  drawObject(app.meshes.unitCube, HORSE_COLORS.hoof, applyLocalTRS(hoofBase, [-0.025, -0.045, -0.025], [0, 0, 0], [0.05, 0.045, 0.05]));
 }
 
 function degToRad(d) {
