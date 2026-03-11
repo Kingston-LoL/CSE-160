@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSE 160 Assignment 5 - Three.js Racing Scene</title>
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #0a1220;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    #app {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    #overlay {
+      position: fixed;
+      left: 12px;
+      top: 12px;
+      max-width: 380px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: rgba(12, 17, 30, 0.78);
+      border: 1px solid rgba(136, 161, 213, 0.35);
+      color: #dce9ff;
+      font-size: 13px;
+      line-height: 1.35;
+      backdrop-filter: blur(6px);
+      z-index: 2;
+    }
+
+    #overlay h1 {
+      font-size: 15px;
+      margin: 0 0 8px 0;
+    }
+
+    #overlay p {
+      margin: 4px 0;
+    }
+
+    #overlay button {
+      margin-top: 8px;
+      padding: 6px 10px;
+      border-radius: 7px;
+      border: 1px solid #98bbff;
+      background: #1d315e;
+      color: #ebf3ff;
+      cursor: pointer;
+    }
+
+    #overlay button:hover {
+      background: #29447f;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="app"></canvas>
+  <section id="overlay">
+    <h1>CSE 160 Assignment 5: Three.js Racing World</h1>
+    <p><strong>Controls:</strong> Left drag orbit, right drag pan, scroll zoom.</p>
+    <p><strong>Includes:</strong> 20+ primitives, textured shapes, animated objects, textured OBJ model, 3+ light types, skybox, perspective camera, mouse controls.</p>
+    <p><strong>Wow Point:</strong> Dynamic day/night mode with pulsing track lights and moving floating drones.</p>
+    <p id="modelStatus"><strong>Model:</strong> Loading sports car...</p>
+    <button id="modeBtn" type="button">Toggle Day/Night</button>
+  </section>
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.161.0/examples/jsm/"
+      }
+    }
+  </script>
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+
+    const canvas = document.getElementById("app");
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.shadowMap.enabled = true;
+
+    const scene = new THREE.Scene();
+    scene.background = createSkyboxTexture(false);
+
+    const camera = new THREE.PerspectiveCamera(
+      65,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      500
+    );
+    camera.position.set(20, 14, 26);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.target.set(0, 3, 0);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.06;
+    controls.maxDistance = 120;
+    controls.minDistance = 5;
+
+    const lights = {};
+    lights.ambient = new THREE.AmbientLight(0x8aa9ff, 0.35);
+    scene.add(lights.ambient);
+
+    lights.directional = new THREE.DirectionalLight(0xfff2d6, 1.2);
+    lights.directional.position.set(20, 30, 10);
+    lights.directional.castShadow = true;
+    lights.directional.shadow.mapSize.set(2048, 2048);
+    lights.directional.shadow.camera.left = -40;
+    lights.directional.shadow.camera.right = 40;
+    lights.directional.shadow.camera.top = 40;
+    lights.directional.shadow.camera.bottom = -40;
+    scene.add(lights.directional);
+
+    lights.hemisphere = new THREE.HemisphereLight(0x8dc0ff, 0x1e1411, 0.65);
+    scene.add(lights.hemisphere);
+
+    lights.point = new THREE.PointLight(0x5cc2ff, 1.6, 65, 2);
+    lights.point.position.set(0, 9, 0);
+    lights.point.castShadow = true;
+    scene.add(lights.point);
+
+    const pointOrb = new THREE.Mesh(
+      new THREE.SphereGeometry(0.42, 20, 16),
+      new THREE.MeshBasicMaterial({ color: 0x89dbff })
+    );
+    lights.point.add(pointOrb);
+
+    // Textured primary shape: generated checker texture on the ground.
+    const groundTex = createCheckerTexture("#26344a", "#1a2535", "#3b5578");
+    groundTex.wrapS = THREE.RepeatWrapping;
+    groundTex.wrapT = THREE.RepeatWrapping;
+    groundTex.repeat.set(18, 18);
+    groundTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(180, 180),
+      new THREE.MeshStandardMaterial({
+        map: groundTex,
+        roughness: 0.95,
+        metalness: 0.05
+      })
+    );
+    ground.rotation.x = -Math.PI * 0.5;
+    ground.receiveShadow = true;
+    scene.add(ground);
+
+    const raceRing = new THREE.Mesh(
+      new THREE.TorusGeometry(18, 2.1, 28, 120),
+      new THREE.MeshStandardMaterial({
+        color: 0x2b2b30,
+        roughness: 0.86,
+        metalness: 0.2
+      })
+    );
+    raceRing.rotation.x = Math.PI * 0.5;
+    raceRing.position.y = 0.11;
+    raceRing.receiveShadow = true;
+    raceRing.castShadow = true;
+    scene.add(raceRing);
+
+    const primitives = [];
+    const animated = [];
+
+    function pushShape(mesh, isAnimated = false) {
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      scene.add(mesh);
+      primitives.push(mesh);
+      if (isAnimated) animated.push(mesh);
+    }
+
+    // 24 primary shapes: cubes, spheres, cylinders.
+    const boxGeo = new THREE.BoxGeometry(1.7, 1.7, 1.7);
+    const sphereGeo = new THREE.SphereGeometry(1, 24, 18);
+    const cylGeo = new THREE.CylinderGeometry(0.7, 0.7, 2.3, 24);
+    const baseMats = [
+      new THREE.MeshStandardMaterial({ color: 0xc85d72, roughness: 0.55 }),
+      new THREE.MeshStandardMaterial({ color: 0x58a7d7, roughness: 0.48 }),
+      new THREE.MeshStandardMaterial({ color: 0xd3b35c, roughness: 0.62 })
+    ];
+
+    for (let i = 0; i < 8; i += 1) {
+      const a = (i / 8) * Math.PI * 2;
+      const r = 30;
+      const box = new THREE.Mesh(boxGeo, baseMats[0]);
+      box.position.set(Math.cos(a) * r, 1.2, Math.sin(a) * r);
+      box.rotation.y = a;
+      pushShape(box, true);
+
+      const sphere = new THREE.Mesh(sphereGeo, baseMats[1]);
+      sphere.position.set(Math.cos(a + 0.18) * (r - 7), 1.1, Math.sin(a + 0.18) * (r - 7));
+      pushShape(sphere);
+
+      const cyl = new THREE.Mesh(cylGeo, baseMats[2]);
+      cyl.position.set(Math.cos(a + 0.32) * (r + 6), 1.4, Math.sin(a + 0.32) * (r + 6));
+      pushShape(cyl);
+    }
+
+    // Extra animated primary shape.
+    const animatedSphere = new THREE.Mesh(
+      new THREE.SphereGeometry(1.6, 28, 22),
+      new THREE.MeshStandardMaterial({ color: 0x7df2be, emissive: 0x1a4b3a, roughness: 0.3 })
+    );
+    animatedSphere.position.set(0, 4.8, -5);
+    pushShape(animatedSphere, true);
+
+    // Floating "drones" for wow effect.
+    const droneGroup = new THREE.Group();
+    scene.add(droneGroup);
+    for (let i = 0; i < 3; i += 1) {
+      const drone = new THREE.Mesh(
+        new THREE.OctahedronGeometry(1.1, 0),
+        new THREE.MeshStandardMaterial({
+          color: i % 2 ? 0xb4a6ff : 0xa9ecff,
+          emissive: 0x1f1233,
+          metalness: 0.65,
+          roughness: 0.22
+        })
+      );
+      drone.position.set(i * 8 - 8, 9 + i, i % 2 === 0 ? -10 : 10);
+      drone.castShadow = true;
+      droneGroup.add(drone);
+      animated.push(drone);
+    }
+
+    const modelStatus = document.getElementById("modelStatus");
+    let carModel = null;
+    let carBaseY = 1.2;
+    const carPath = {
+      radius: 16,
+      speed: 0.34,
+      headingOffset: Math.PI * 0.5
+    };
+    const gltfLoader = new GLTFLoader();
+    gltfLoader.load(
+      "models/free_1972_datsun_240k_gt.glb",
+      (gltf) => {
+        const object = gltf.scene;
+        object.traverse((child) => {
+          if (child.isMesh) {
+            child.castShadow = true;
+            child.receiveShadow = true;
+          }
+        });
+
+        // Auto-fit the model so it is reliably visible regardless of source size.
+        const bounds = new THREE.Box3().setFromObject(object);
+        const size = bounds.getSize(new THREE.Vector3());
+        const center = bounds.getCenter(new THREE.Vector3());
+        const longestEdge = Math.max(size.x, size.y, size.z) || 1;
+        const targetSize = 9;
+        const fitScale = targetSize / longestEdge;
+
+        object.scale.setScalar(fitScale);
+        object.position.sub(center.multiplyScalar(fitScale));
+        object.position.y += 1.2;
+
+        // Keep car resting above the ground after auto-fit.
+        const fittedBounds = new THREE.Box3().setFromObject(object);
+        object.position.y += -fittedBounds.min.y + 0.12;
+        carBaseY = object.position.y;
+
+        object.rotation.y = carPath.headingOffset;
+        scene.add(object);
+        carModel = object;
+        modelStatus.innerHTML = "<strong>Model:</strong> Sports car loaded.";
+      },
+      (event) => {
+        if (event.total > 0) {
+          const percent = Math.round((event.loaded / event.total) * 100);
+          modelStatus.innerHTML = `<strong>Model:</strong> Loading sports car... ${percent}%`;
+        }
+      },
+      (error) => {
+        console.error("Failed to load GLB model.", error);
+        modelStatus.innerHTML = "<strong>Model:</strong> Failed to load. Check browser console.";
+      }
+    );
+
+    let isNight = false;
+    const modeBtn = document.getElementById("modeBtn");
+    modeBtn.addEventListener("click", () => {
+      isNight = !isNight;
+      scene.background = createSkyboxTexture(isNight);
+      modeBtn.textContent = isNight ? "Switch to Day" : "Toggle Day/Night";
+    });
+
+    const clock = new THREE.Clock();
+    function animate() {
+      const t = clock.getElapsedTime();
+
+      animated.forEach((mesh, idx) => {
+        mesh.rotation.x += 0.006 + idx * 0.0009;
+        mesh.rotation.y += 0.010 + idx * 0.0012;
+      });
+
+      animatedSphere.position.y = 4.8 + Math.sin(t * 2.2) * 1.3;
+      lights.point.position.x = Math.cos(t * 0.7) * 16;
+      lights.point.position.z = Math.sin(t * 0.7) * 16;
+      lights.point.intensity = isNight ? 2.9 + Math.sin(t * 4) * 0.25 : 1.4;
+
+      const skyBlend = isNight ? 0.2 : 1.0;
+      lights.ambient.intensity = 0.25 * skyBlend + 0.15;
+      lights.directional.intensity = 0.65 * skyBlend + 0.4;
+      lights.hemisphere.intensity = 0.3 * skyBlend + 0.35;
+
+      droneGroup.children.forEach((drone, i) => {
+        drone.position.y = 8.5 + i + Math.sin(t * 1.7 + i) * 0.9;
+      });
+
+      if (carModel) {
+        const a = t * carPath.speed;
+        carModel.position.x = Math.cos(a) * carPath.radius;
+        carModel.position.z = Math.sin(a) * carPath.radius;
+        carModel.position.y = carBaseY;
+        carModel.rotation.y = -a + carPath.headingOffset;
+      }
+
+      controls.update();
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    function createCheckerTexture(c1, c2, lineColor) {
+      const size = 256;
+      const cells = 8;
+      const cv = document.createElement("canvas");
+      cv.width = size;
+      cv.height = size;
+      const ctx = cv.getContext("2d");
+      const cell = size / cells;
+
+      for (let y = 0; y < cells; y += 1) {
+        for (let x = 0; x < cells; x += 1) {
+          ctx.fillStyle = (x + y) % 2 === 0 ? c1 : c2;
+          ctx.fillRect(x * cell, y * cell, cell, cell);
+        }
+      }
+      ctx.strokeStyle = lineColor;
+      ctx.lineWidth = 2;
+      for (let i = 0; i <= cells; i += 1) {
+        ctx.beginPath();
+        ctx.moveTo(i * cell, 0);
+        ctx.lineTo(i * cell, size);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(0, i * cell);
+        ctx.lineTo(size, i * cell);
+        ctx.stroke();
+      }
+      return new THREE.CanvasTexture(cv);
+    }
+
+    function createStripeTexture(c1, c2, c3) {
+      const cv = document.createElement("canvas");
+      cv.width = 256;
+      cv.height = 256;
+      const ctx = cv.getContext("2d");
+
+      ctx.fillStyle = c1;
+      ctx.fillRect(0, 0, 256, 256);
+      ctx.fillStyle = c2;
+      for (let i = 0; i < 9; i += 1) {
+        ctx.fillRect(i * 32, 0, 14, 256);
+      }
+      ctx.strokeStyle = c3;
+      ctx.lineWidth = 6;
+      ctx.strokeRect(2, 2, 252, 252);
+      return new THREE.CanvasTexture(cv);
+    }
+
+    function createSkyboxTexture(nightMode) {
+      const colors = nightMode
+        ? ["#020617", "#111827", "#081429", "#050b14", "#18263c", "#111d2f"]
+        : ["#5d8bd8", "#7db0ff", "#79c2f7", "#6f9cdf", "#acd2ff", "#4f77b8"];
+
+      const faces = colors.map((baseColor, idx) => {
+        const cv = document.createElement("canvas");
+        cv.width = 512;
+        cv.height = 512;
+        const ctx = cv.getContext("2d");
+
+        const grad = ctx.createLinearGradient(0, 0, 0, 512);
+        grad.addColorStop(0, brighten(baseColor, 25));
+        grad.addColorStop(1, darken(baseColor, 32));
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 512, 512);
+
+        if (nightMode) {
+          ctx.fillStyle = "rgba(250,250,255,0.85)";
+          for (let i = 0; i < 70; i += 1) {
+            const x = (i * 83 + idx * 19) % 512;
+            const y = (i * 137 + idx * 11) % 512;
+            const r = (i % 3) + 1;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        } else {
+          ctx.fillStyle = "rgba(255,255,255,0.36)";
+          for (let i = 0; i < 6; i += 1) {
+            const x = (i * 91 + idx * 37) % 420 + 45;
+            const y = (i * 53 + idx * 23) % 260 + 50;
+            ctx.beginPath();
+            ctx.ellipse(x, y, 50, 20, 0, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+        return cv;
+      });
+
+      const cube = new THREE.CubeTexture(faces);
+      cube.needsUpdate = true;
+      return cube;
+    }
+
+    function clamp(v, min, max) {
+      return Math.min(max, Math.max(min, v));
+    }
+
+    function brighten(hex, amount) {
+      const c = new THREE.Color(hex);
+      c.r = clamp(c.r + amount / 255, 0, 1);
+      c.g = clamp(c.g + amount / 255, 0, 1);
+      c.b = clamp(c.b + amount / 255, 0, 1);
+      return `#${c.getHexString()}`;
+    }
+
+    function darken(hex, amount) {
+      const c = new THREE.Color(hex);
+      c.r = clamp(c.r - amount / 255, 0, 1);
+      c.g = clamp(c.g - amount / 255, 0, 1);
+      c.b = clamp(c.b - amount / 255, 0, 1);
+      return `#${c.getHexString()}`;
+    }
+  </script>
+</body>
+</html>
